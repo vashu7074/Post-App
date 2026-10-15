@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>POST - Direct Messages</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-page: #FFFFFF;
+            --bg-card: #FFFFFF;
+            --text-main: #18181B;
+            --text-muted: #71717A;
+            --border-subtle: #E4E4E7;
+            --divider: #F4F4F5;
+            --primary-accent: #18181B;
+            --accent-contrast: #FFFFFF;
+            --badge-bg: #F4F4F5;
+            --msg-out: var(--primary-accent);
+            --msg-out-text: var(--accent-contrast);
+            --msg-in: #F4F4F5;
+            --msg-in-text: #18181B;
+            --online-dot: #10B981;
+            --danger-red: #EF4444;
+        }
+
+        body.dark-mode {
+            --bg-page: #09090B;
+            --bg-card: #121215;
+            --text-main: #F4F4F5;
+            --text-muted: #A1A1AA;
+            --border-subtle: #27272A;
+            --divider: #18181B;
+            --accent-contrast: #09090B;
+            --badge-bg: #1E1E22;
+            --msg-in: #1E1E22;
+            --msg-in-text: #F4F4F5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            overflow-x: hidden;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .app-shell {
+            width: 100%;
+            max-width: 440px;
+            min-height: 100vh;
+            background: var(--bg-page);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 75px;
+        }
+
+        /* Top Nav */
+        .top-nav {
+            position: sticky;
+            top: 0;
+            background: var(--bg-page);
+            z-index: 40;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .nav-title { font-size: 21px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; }
+
+        /* Search Bar */
+        .search-box-wrap { padding: 10px 16px; background: var(--bg-page); }
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: var(--badge-bg);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 8px 12px;
+        }
+        .search-input {
+            width: 100%;
+            border: none;
+            outline: none;
+            font-size: 13px;
+            color: var(--text-main);
+            margin-left: 8px;
+            background: transparent;
+        }
+
+        /* Direct Chat List */
+        .chat-list-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--divider);
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+        .chat-item:active { background: var(--badge-bg); }
+
+        .chat-item-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .chat-avatar-wrapper {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            flex-shrink: 0;
+        }
+        .chat-avatar-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .online-dot-badge {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 12px;
+            height: 12px;
+            background: var(--online-dot);
+            border-radius: 50%;
+            border: 2px solid var(--bg-card);
+        }
+
+        .chat-meta-box {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            flex: 1;
+            min-width: 0;
+        }
+        .chat-name-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        .chat-user-name {
+            font-size: 14.5px;
+            font-weight: 700;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .chat-time-tag {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+        .chat-preview-text {
+            font-size: 13px;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .unread-badge {
+            background: var(--primary-accent);
+            color: var(--accent-contrast);
+            font-size: 11px;
+            font-weight: 800;
+            min-width: 20px;
+            height: 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 6px;
+            margin-left: 6px;
+        }
+
+        /* FULLSCREEN ACTIVE CHAT SCREEN */
+        .chat-room-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: var(--bg-page);
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+        }
+        .chat-room-screen.open { display: flex; }
+
+        .chat-room-header {
+            padding: 10px 14px;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            color: var(--text-main);
+            padding: 4px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .header-profile-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            cursor: pointer;
+            padding: 4px 6px;
+            border-radius: 12px;
+            transition: background 0.15s ease;
+        }
+        .header-profile-box:active { background: var(--badge-bg); }
+
+        .header-dp {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .header-title-box { display: flex; flex-direction: column; }
+        .header-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .header-sub { font-size: 11px; color: var(--text-muted); }
+
+        .theme-action-btn {
+            background: var(--badge-bg);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            padding: 6px 12px;
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+
+        /* Message Stream */
+        .chat-message-stream {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background-color: var(--bg-page);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .message-bubble {
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 18px;
+            font-size: 13.5px;
+            line-height: 1.45;
+            position: relative;
+            word-break: break-word;
+        }
+        .message-bubble.incoming {
+            align-self: flex-start;
+            background: var(--msg-in);
+            color: var(--msg-in-text);
+            border-bottom-left-radius: 4px;
+        }
+        .message-bubble.outgoing {
+            align-self: flex-end;
+            background: var(--primary-accent);
+            color: var(--accent-contrast);
+            border-bottom-right-radius: 4px;
+        }
+        .msg-time {
+            font-size: 10px;
+            margin-top: 4px;
+            opacity: 0.7;
+            text-align: right;
+            display: block;
+        }
+
+        /* Location Card */
+        .location-card-bubble {
+            border-radius: 14px;
+            overflow: hidden;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            width: 220px;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+        }
+        .loc-map-preview {
+            width: 100%;
+            height: 95px;
+            background: #E2E8F0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .loc-map-pin {
+            font-size: 26px;
+            animation: bounce 1.2s infinite ease-in-out;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+        .loc-details-box {
+            padding: 8px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .loc-title { font-size: 12px; font-weight: 700; color: var(--text-main); }
+        .loc-subtitle { font-size: 10px; color: var(--text-muted); }
+
+        /* Voice Note Bubble */
+        .voice-note-bubble {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 180px;
+        }
+        .voice-play-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--accent-contrast);
+            color: var(--primary-accent);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .incoming .voice-play-btn {
+            background: var(--primary-accent);
+            color: var(--accent-contrast);
+        }
+        .voice-wave {
+            flex: 1;
+            height: 4px;
+            background: rgba(255,255,255,0.4);
+            border-radius: 2px;
+            position: relative;
+        }
+        .incoming .voice-wave { background: rgba(0,0,0,0.15); }
+        .voice-wave-progress {
+            width: 45%;
+            height: 100%;
+            background: var(--accent-contrast);
+            border-radius: 2px;
+        }
+        .incoming .voice-wave-progress { background: var(--primary-accent); }
+
+        /* Input Bar */
+        .chat-input-bar {
+            padding: 10px 14px;
+            background: var(--bg-card);
+            border-top: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+            position: relative;
+        }
+        .attach-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--badge-bg);
+            border: 1px solid var(--border-subtle);
+            font-size: 18px;
+            cursor: pointer;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .msg-input-field {
+            flex: 1;
+            padding: 10px 16px;
+            background: var(--badge-bg);
+            border: 1px solid var(--border-subtle);
+            border-radius: 22px;
+            font-size: 13.5px;
+            color: var(--text-main);
+            outline: none;
+        }
+        .voice-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--badge-bg);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-main);
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+        .voice-btn.recording {
+            background: var(--danger-red);
+            color: #FFFFFF;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .send-msg-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-accent);
+            color: var(--accent-contrast);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+            flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        /* ATTACHMENT MODAL */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px);
+            display: none; justify-content: center; align-items: flex-end; z-index: 150;
+        }
+        .bottom-sheet {
+            width: 100%; max-width: 440px; background: var(--bg-card);
+            border-radius: 24px 24px 0 0; padding: 20px 20px 28px 20px;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.15);
+        }
+        .sheet-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+        .sheet-title { font-size: 16px; font-weight: 800; color: var(--text-main); }
+        .close-btn { background: none; border: none; font-size: 22px; color: var(--text-muted); cursor: pointer; }
+
+        .attach-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+        }
+        .attach-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        .attach-circle-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--badge-bg);
+            border: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: transform 0.15s ease;
+        }
+        .attach-box:active .attach-circle-icon { transform: scale(0.92); }
+        .attach-lbl {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-main);
+            text-align: center;
+        }
+
+        /* Palette Modal */
+        .palette-section-title { font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; }
+        .color-palette-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .color-swatch {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid var(--border-subtle);
+        }
+        .custom-upload-box {
+            padding: 14px;
+            border: 1.5px dashed var(--border-subtle);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--badge-bg);
+            cursor: pointer;
+            margin-bottom: 12px;
+        }
+
+        /* Clean 4-Item Bottom Nav (Market Removed) */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+            width: 100%; max-width: 440px; background: var(--bg-card);
+            border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-around;
+            padding: 8px 0; z-index: 40;
+        }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center; color: var(--text-muted);
+            font-size: 10px; font-weight: 700; cursor: pointer; text-decoration: none; position: relative; gap: 3px;
+        }
+        .nav-item.active { color: var(--primary-accent); }
+
+        .toast-msg {
+            position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%);
+            background: var(--primary-accent); color: var(--accent-contrast); padding: 8px 18px;
+            border-radius: 20px; font-size: 12px; font-weight: 600; display: none; z-index: 160;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="toast-msg" id="toastMsg">Alert</div>
+
+    <!-- Hidden File Inputs -->
+    <input type="file" id="cameraUpload" accept="image/*" capture="environment" style="display:none;" onchange="handleSendMedia(this, 'photo')">
+    <input type="file" id="galleryUpload" accept="image/*,video/*" style="display:none;" onchange="handleSendMedia(this, 'photo')">
+    <input type="file" id="fileUpload" accept="*/*" style="display:none;" onchange="handleSendMedia(this, 'file')">
+    <input type="file" id="wallpaperPhotoUpload" accept="image/*" style="display:none;" onchange="handleCustomWallpaperUpload(this)">
+
+    <div class="app-shell">
+
+        <!-- Top Header -->
+        <header class="top-nav">
+            <span class="nav-title">Messages</span>
+            <button class="theme-action-btn" onclick="openWallpaperModal()">🎨 Wallpaper</button>
+        </header>
+
+        <!-- Search Bar -->
+        <div class="search-box-wrap">
+            <div class="search-box">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" class="search-input" placeholder="Search direct messages..." oninput="filterChatList(this.value)">
+            </div>
+        </div>
+
+        <!-- Chat List Screen -->
+        <div class="chat-list-container" id="chatListWrap">
+            
+            <div class="chat-item" onclick="openChatRoom('Ravi Singh', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120', 'Bangarmau', '@ravi_singh')">
+                <div class="chat-item-left">
+                    <div class="chat-avatar-wrapper">
+                        <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120" class="chat-avatar-img" alt="Ravi">
+                        <div class="online-dot-badge"></div>
+                    </div>
+                    <div class="chat-meta-box">
+                        <div class="chat-name-row">
+                            <span class="chat-user-name">Ravi Singh</span>
+                            <span class="chat-time-tag">2m ago</span>
+                        </div>
+                        <span class="chat-preview-text">Are you going to the market today?</span>
+                    </div>
+                </div>
+                <div class="unread-badge">2</div>
+            </div>
+
+            <div class="chat-item" onclick="openChatRoom('Sunil Verma', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120', 'Ganj Muradabad', '@sunil_v')">
+                <div class="chat-item-left">
+                    <div class="chat-avatar-wrapper">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120" class="chat-avatar-img" alt="Sunil">
+                    </div>
+                    <div class="chat-meta-box">
+                        <div class="chat-name-row">
+                            <span class="chat-user-name">Sunil Verma</span>
+                            <span class="chat-time-tag">1h ago</span>
+                        </div>
+                        <span class="chat-preview-text">Shared the contact of the tractor service.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-item" onclick="openChatRoom('Pooja Gupta', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120', 'Bangarmau', '@pooja_g')">
+                <div class="chat-item-left">
+                    <div class="chat-avatar-wrapper">
+                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120" class="chat-avatar-img" alt="Pooja">
+                        <div class="online-dot-badge"></div>
+                    </div>
+                    <div class="chat-meta-box">
+                        <div class="chat-name-row">
+                            <span class="chat-user-name">Pooja Gupta</span>
+                            <span class="chat-time-tag">Yesterday</span>
+                        </div>
+                        <span class="chat-preview-text">Thanks! The fabric quality is awesome.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-item" onclick="openChatRoom('Mohan Lal (Dairy)', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120', 'Bangarmau', '@mohan_dairy')">
+                <div class="chat-item-left">
+                    <div class="chat-avatar-wrapper">
+                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120" class="chat-avatar-img" alt="Mohan">
+                    </div>
+                    <div class="chat-meta-box">
+                        <div class="chat-name-row">
+                            <span class="chat-user-name">Mohan Lal (Dairy)</span>
+                            <span class="chat-time-tag">3d ago</span>
+                        </div>
+                        <span class="chat-preview-text">Fresh paneer order is ready for pickup.</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Clean 4-Item Bottom Nav (Market Removed) -->
+        <nav class="bottom-nav">
+            <a href="home.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                <span>Home</span>
+            </a>
+            <a href="chat.html" class="nav-item active">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                <span>Chat</span>
+            </a>
+            <a href="area.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                <span>Area</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                <span>Profile</span>
+            </a>
+        </nav>
+
+    </div>
+
+    <!-- FULLSCREEN 1-ON-1 CHAT ROOM -->
+    <div class="chat-room-screen" id="chatRoomScreen">
+        <div class="chat-room-header">
+            <button class="back-btn" onclick="closeChatRoom()">←</button>
+            <div class="header-profile-box" onclick="goToUserProfile()" title="Tap to view Profile">
+                <img id="chatRoomUserDp" src="" class="header-dp" alt="Avatar">
+                <div class="header-title-box">
+                    <span class="header-name">
+                        <span id="chatRoomUserName">User</span>
+                        <span style="font-size:11px; opacity:0.6;">➔</span>
+                    </span>
+                    <span class="header-sub" id="chatRoomUserSub">📍 Bangarmau • Active now</span>
+                </div>
+            </div>
+            <button class="theme-action-btn" onclick="openWallpaperModal()">🎨 Wallpaper</button>
+        </div>
+
+        <div class="chat-message-stream" id="messageStream">
+            <div class="message-bubble incoming">
+                Namaste! Are you around town today?
+                <span class="msg-time">10:14 AM</span>
+            </div>
+            <div class="message-bubble outgoing">
+                Yes, I am near the Tehsil road market. What's up?
+                <span class="msg-time">10:15 AM</span>
+            </div>
+        </div>
+
+        <div class="chat-input-bar">
+            <button class="attach-btn" onclick="openAttachModal()" title="Attachments">+</button>
+            <input type="text" class="msg-input-field" id="chatTextInput" placeholder="Message..." onkeypress="handleInputKey(event)">
+            <button class="voice-btn" id="voiceRecordBtn" onclick="toggleVoiceRecord()" title="Record Voice">🎙️</button>
+            <button class="send-msg-btn" id="sendMsgBtn" onclick="sendTextMessage()" title="Send">➤</button>
+        </div>
+    </div>
+
+    <!-- 1. ATTACHMENT MODAL -->
+    <div class="modal-overlay" id="attachModal">
+        <div class="bottom-sheet">
+            <div class="sheet-header">
+                <span class="sheet-title">Share Content</span>
+                <button class="close-btn" onclick="closeAttachModal()">&times;</button>
+            </div>
+
+            <div class="attach-grid">
+                <div class="attach-box" onclick="triggerAttachOption('camera')">
+                    <div class="attach-circle-icon">📷</div>
+                    <span class="attach-lbl">Camera</span>
+                </div>
+                <div class="attach-box" onclick="triggerAttachOption('gallery')">
+                    <div class="attach-circle-icon">🖼️</div>
+                    <span class="attach-lbl">Gallery</span>
+                </div>
+                <div class="attach-box" onclick="triggerAttachOption('file')">
+                    <div class="attach-circle-icon">📁</div>
+                    <span class="attach-lbl">Files</span>
+                </div>
+                <div class="attach-box" onclick="sendLiveLocation()">
+                    <div class="attach-circle-icon">📍</div>
+                    <span class="attach-lbl">Location</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. WALLPAPER MODAL -->
+    <div class="modal-overlay" id="wallpaperModal">
+        <div class="bottom-sheet">
+            <div class="sheet-header">
+                <span class="sheet-title">🎨 Chat Screen Wallpaper</span>
+                <button class="close-btn" onclick="closeWallpaperModal()">&times;</button>
+            </div>
+
+            <div class="custom-upload-box" onclick="document.getElementById('wallpaperPhotoUpload').click()">
+                <div>
+                    <div style="font-size:13px; font-weight:700; color:var(--text-main);">🖼️ Choose from Gallery</div>
+                    <div style="font-size:11px; color:var(--text-muted);">Set your personal photo as background</div>
+                </div>
+                <span style="font-size:12px; font-weight:700; color:var(--text-main);">Upload →</span>
+            </div>
+
+            <div class="palette-section-title">Solid Colors & Tones</div>
+            <div class="color-palette-grid">
+                <div class="color-swatch" style="background:#FFFFFF;" onclick="setWallpaperColor('#FFFFFF')"></div>
+                <div class="color-swatch" style="background:#F4F4F5;" onclick="setWallpaperColor('#F4F4F5')"></div>
+                <div class="color-swatch" style="background:#E2E8F0;" onclick="setWallpaperColor('#E2E8F0')"></div>
+                <div class="color-swatch" style="background:#FEF3C7;" onclick="setWallpaperColor('#FEF3C7')"></div>
+                <div class="color-swatch" style="background:#DCFCE7;" onclick="setWallpaperColor('#DCFCE7')"></div>
+                <div class="color-swatch" style="background:#E0F2FE;" onclick="setWallpaperColor('#E0F2FE')"></div>
+                <div class="color-swatch" style="background:#FCE7F3;" onclick="setWallpaperColor('#FCE7F3')"></div>
+                <div class="color-swatch" style="background:#EDE9FE;" onclick="setWallpaperColor('#EDE9FE')"></div>
+                <div class="color-swatch" style="background:#18181B;" onclick="setWallpaperColor('#18181B')"></div>
+                <div class="color-swatch" style="background:#0F172A;" onclick="setWallpaperColor('#0F172A')"></div>
+                <div class="color-swatch" style="background:#1E293B;" onclick="setWallpaperColor('#1E293B')"></div>
+                <div class="color-swatch" style="background:#09090B;" onclick="setWallpaperColor('#09090B')"></div>
+            </div>
+
+            <button onclick="resetDefaultWallpaper()" style="width:100%; padding:10px; background:var(--badge-bg); border:1px solid var(--border-subtle); color:var(--text-main); border-radius:12px; font-size:12px; font-weight:700; cursor:pointer;">
+                Reset to Default
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let isRecording = false;
+        let activeChatUser = { name: "Ravi Singh", handle: "@ravi_singh" };
+
+        window.addEventListener('load', () => {
+            const savedTheme = localStorage.getItem('post_app_theme');
+            if (savedTheme === 'dark') document.body.classList.add('dark-mode');
+
+            const savedBg = localStorage.getItem('post_chat_wallpaper');
+            if (savedBg) applyWallpaperStyle(savedBg);
+        });
+
+        function filterChatList(q) {
+            const val = q.trim().toLowerCase();
+            const items = document.querySelectorAll('.chat-item');
+            items.forEach(el => {
+                const name = el.querySelector('.chat-user-name').textContent.toLowerCase();
+                const preview = el.querySelector('.chat-preview-text').textContent.toLowerCase();
+                el.style.display = (name.includes(val) || preview.includes(val)) ? 'flex' : 'none';
+            });
+        }
+
+        function openChatRoom(name, dp, locality, handle) {
+            activeChatUser = { name, handle: handle || '@user' };
+            document.getElementById('chatRoomUserName').textContent = name;
+            document.getElementById('chatRoomUserDp').src = dp;
+            document.getElementById('chatRoomUserSub').textContent = `📍 ${locality} • Active now`;
+            document.getElementById('chatRoomScreen').classList.add('open');
+            scrollChatToBottom();
+        }
+
+        function closeChatRoom() {
+            document.getElementById('chatRoomScreen').classList.remove('open');
+        }
+
+        function goToUserProfile() {
+            window.location.href = `profile.html?view=visitor&user=${encodeURIComponent(activeChatUser.name)}`;
+        }
+
+        function handleInputKey(e) {
+            if (e.key === 'Enter') sendTextMessage();
+        }
+
+        function sendTextMessage() {
+            const input = document.getElementById('chatTextInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const stream = document.getElementById('messageStream');
+            const bubble = document.createElement('div');
+            bubble.className = 'message-bubble outgoing';
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            bubble.innerHTML = `${text}<span class="msg-time">${timeStr}</span>`;
+            stream.appendChild(bubble);
+            input.value = '';
+            scrollChatToBottom();
+
+            setTimeout(() => {
+                const reply = document.createElement('div');
+                reply.className = 'message-bubble incoming';
+                reply.innerHTML = `Received your message! Checking it now.<span class="msg-time">${timeStr}</span>`;
+                stream.appendChild(reply);
+                scrollChatToBottom();
+            }, 1000);
+        }
+
+        function openAttachModal() { document.getElementById('attachModal').style.display = 'flex'; }
+        function closeAttachModal() { document.getElementById('attachModal').style.display = 'none'; }
+
+        function triggerAttachOption(type) {
+            closeAttachModal();
+            if (type === 'camera') document.getElementById('cameraUpload').click();
+            if (type === 'gallery') document.getElementById('galleryUpload').click();
+            if (type === 'file') document.getElementById('fileUpload').click();
+        }
+
+        function handleSendMedia(input, kind) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const url = URL.createObjectURL(file);
+            const stream = document.getElementById('messageStream');
+            const bubble = document.createElement('div');
+            bubble.className = 'message-bubble outgoing';
+            const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            if (kind === 'photo') {
+                bubble.style.padding = '6px';
+                bubble.innerHTML = `
+                    <img src="${url}" style="width:100%; max-height:220px; border-radius:12px; object-fit:cover; display:block;">
+                    <span class="msg-time" style="padding:4px 8px 2px 0;">${now}</span>
+                `;
+            } else {
+                bubble.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:22px;">📁</span>
+                        <div>
+                            <div style="font-weight:700; font-size:13px;">${file.name}</div>
+                            <div style="font-size:10px; opacity:0.8;">${(file.size / 1024).toFixed(1)} KB</div>
+                        </div>
+                    </div>
+                    <span class="msg-time">${now}</span>
+                `;
+            }
+
+            stream.appendChild(bubble);
+            scrollChatToBottom();
+            showToast(`${kind === 'photo' ? 'Photo' : 'File'} sent!`);
+        }
+
+        function sendLiveLocation() {
+            closeAttachModal();
+            showToast("Getting location...");
+
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    pos => {
+                        const lat = pos.coords.latitude.toFixed(4);
+                        const lon = pos.coords.longitude.toFixed(4);
+                        renderLocationBubble(lat, lon, "Current Live Location");
+                    },
+                    err => {
+                        renderLocationBubble("26.90", "80.36", "Bangarmau (Local GPS)");
+                    }
+                );
+            } else {
+                renderLocationBubble("26.90", "80.36", "Bangarmau (Local GPS)");
+            }
+        }
+
+        function renderLocationBubble(lat, lon, label) {
+            const stream = document.getElementById('messageStream');
+            const bubble = document.createElement('div');
+            bubble.className = 'message-bubble outgoing';
+            bubble.style.padding = '5px';
+            const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            bubble.innerHTML = `
+                <a href="https://www.google.com/maps?q=${lat},${lon}" target="_blank" class="location-card-bubble">
+                    <div class="loc-map-preview">
+                        <div class="loc-map-pin">📍</div>
+                    </div>
+                    <div class="loc-details-box">
+                        <span class="loc-title">📍 ${label}</span>
+                        <span class="loc-subtitle">Lat: ${lat}, Lon: ${lon} • Tap to open</span>
+                    </div>
+                </a>
+                <span class="msg-time" style="padding:4px 6px 2px 0;">${now}</span>
+            `;
+
+            stream.appendChild(bubble);
+            scrollChatToBottom();
+            showToast("Location sent!");
+        }
+
+        function toggleVoiceRecord() {
+            const btn = document.getElementById('voiceRecordBtn');
+            if (!isRecording) {
+                isRecording = true;
+                btn.classList.add('recording');
+                btn.textContent = '⏹️';
+                showToast("Recording voice message... Tap to stop");
+            } else {
+                isRecording = false;
+                btn.classList.remove('recording');
+                btn.textContent = '🎙️';
+                sendVoiceMessage();
+            }
+        }
+
+        function sendVoiceMessage() {
+            const stream = document.getElementById('messageStream');
+            const bubble = document.createElement('div');
+            bubble.className = 'message-bubble outgoing';
+            const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            bubble.innerHTML = `
+                <div class="voice-note-bubble">
+                    <button class="voice-play-btn" onclick="playVoiceMock(this)">▶</button>
+                    <div class="voice-wave">
+                        <div class="voice-wave-progress"></div>
+                    </div>
+                    <span style="font-size:11px; font-weight:700;">0:07</span>
+                </div>
+                <span class="msg-time">${now}</span>
+            `;
+
+            stream.appendChild(bubble);
+            scrollChatToBottom();
+            showToast("Voice message sent!");
+        }
+
+        function playVoiceMock(btn) {
+            if (btn.textContent === '▶') {
+                btn.textContent = '⏸';
+                setTimeout(() => { btn.textContent = '▶'; }, 3000);
+            } else {
+                btn.textContent = '▶';
+            }
+        }
+
+        function scrollChatToBottom() {
+            const s = document.getElementById('messageStream');
+            s.scrollTop = s.scrollHeight;
+        }
+
+        function openWallpaperModal() { document.getElementById('wallpaperModal').style.display = 'flex'; }
+        function closeWallpaperModal() { document.getElementById('wallpaperModal').style.display = 'none'; }
+
+        function setWallpaperColor(color) {
+            const payload = JSON.stringify({ type: 'color', val: color });
+            localStorage.setItem('post_chat_wallpaper', payload);
+            applyWallpaperStyle(payload);
+            closeWallpaperModal();
+            showToast("Wallpaper color applied!");
+        }
+
+        function handleCustomWallpaperUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                const payload = JSON.stringify({ type: 'image', val: e.target.result });
+                localStorage.setItem('post_chat_wallpaper', payload);
+                applyWallpaperStyle(payload);
+                closeWallpaperModal();
+                showToast("Custom photo set as wallpaper!");
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function resetDefaultWallpaper() {
+            localStorage.removeItem('post_chat_wallpaper');
+            const stream = document.getElementById('messageStream');
+            stream.style.backgroundColor = 'var(--bg-page)';
+            stream.style.backgroundImage = 'none';
+            closeWallpaperModal();
+            showToast("Wallpaper reset to default");
+        }
+
+        function applyWallpaperStyle(payloadStr) {
+            try {
+                const cfg = JSON.parse(payloadStr);
+                const stream = document.getElementById('messageStream');
+                if (cfg.type === 'color') {
+                    stream.style.backgroundImage = 'none';
+                    stream.style.backgroundColor = cfg.val;
+                } else if (cfg.type === 'image') {
+                    stream.style.backgroundColor = 'transparent';
+                    stream.style.backgroundImage = `url("${cfg.val}")`;
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toastMsg');
+            t.textContent = msg;
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 2000);
+        }
+    </script>
+</body>
+</html>

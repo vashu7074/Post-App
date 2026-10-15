@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>POST - Area Channel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-page: #FFFFFF;
+            --bg-card: #FFFFFF;
+            --text-main: #18181B;
+            --text-muted: #71717A;
+            --border-subtle: #E4E4E7;
+            --divider: #F4F4F5;
+            --primary-accent: #18181B;
+            --accent-contrast: #FFFFFF;
+            --badge-bg: #F4F4F5;
+            --green: #10B981;
+            --red: #DC2626;
+            --blue: #2563EB;
+            --story-glow: linear-gradient(135deg, #F59E0B, #EC4899, #8B5CF6);
+            --sponsor-glow: linear-gradient(135deg, #2563EB, #7C3AED);
+            --sidebar-card-grad: linear-gradient(135deg, #18181B, #27272A);
+        }
+
+        body.dark-mode {
+            --bg-page: #09090B;
+            --bg-card: #121215;
+            --text-main: #F4F4F5;
+            --text-muted: #A1A1AA;
+            --border-subtle: #27272A;
+            --divider: #18181B;
+            --primary-accent: #FFFFFF;
+            --accent-contrast: #09090B;
+            --badge-bg: #1E1E22;
+            --sidebar-card-grad: linear-gradient(135deg, #1E1E24, #121215);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .app-shell {
+            width: 100%;
+            max-width: 440px;
+            min-height: 100vh;
+            background: var(--bg-page);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 75px;
+        }
+
+        /* Pull to Refresh */
+        .pull-refresh-indicator {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 0px;
+            overflow: hidden;
+            background: var(--divider);
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 700;
+            transition: height 0.2s ease;
+            gap: 6px;
+        }
+        .pull-spinner {
+            width: 14px;
+            height: 14px;
+            border: 2px solid var(--text-muted);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            display: none;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Top Nav */
+        .top-nav {
+            position: sticky;
+            top: 0;
+            background: var(--bg-page);
+            z-index: 100;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .brand-cluster-wrap { display: flex; align-items: center; gap: 10px; }
+
+        .cluster-btn {
+            width: 38px;
+            height: 38px;
+            background: #F4F4F6;
+            border: 1px solid #E4E4E7;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: 0;
+        }
+        .cluster-btn:active { transform: scale(0.92); }
+        .cluster-grid-icon {
+            display: grid;
+            grid-template-columns: repeat(2, 8px);
+            grid-template-rows: repeat(2, 8px);
+            gap: 3.5px;
+        }
+        .cluster-rect {
+            width: 8px;
+            height: 8px;
+            background: #18181B;
+            border-radius: 2.5px;
+        }
+        body.dark-mode .cluster-rect { background: #FFFFFF; }
+
+        .brand-logo-txt { font-size: 20px; font-weight: 900; letter-spacing: -0.5px; }
+
+        .top-right-tools { display: flex; align-items: center; gap: 8px; flex: 1; justify-content: flex-end; }
+        .search-container { position: relative; width: 100%; max-width: 195px; }
+        .search-box {
+            display: flex; align-items: center; background: var(--badge-bg);
+            border: 1px solid var(--border-subtle); border-radius: 10px;
+            padding: 4px 6px 4px 10px; width: 100%;
+        }
+        .search-input { width: 100%; border: none; outline: none; font-size: 11.5px; color: var(--text-main); background: transparent; }
+        .search-lens-btn { background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 4px; display: flex; align-items: center; }
+
+        .search-hints-pop {
+            position: absolute;
+            top: 38px;
+            right: 0;
+            width: 250px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            box-shadow: 0 10px 28px rgba(0,0,0,0.2);
+            display: none;
+            flex-direction: column;
+            padding: 6px;
+            z-index: 1000;
+        }
+        .search-hint-pill {
+            padding: 8px 10px; font-size: 11px; font-weight: 600; color: var(--text-muted);
+            cursor: pointer; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .search-hint-pill:hover, .search-hint-pill:active { background: var(--badge-bg); color: var(--text-main); }
+        .search-hint-pill b { color: var(--text-main); }
+
+        .bell-btn { position: relative; background: none; border: none; cursor: pointer; padding: 6px; color: var(--text-main); }
+
+        /* Balanced Semi-Urban Town Scenery Cover Photo */
+        .area-cover-wrapper {
+            position: relative;
+            width: 100%;
+            height: 175px;
+            background: #27272A;
+            overflow: hidden;
+        }
+        .area-cover-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .area-cover-mask-svg {
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 26px;
+            pointer-events: none;
+        }
+
+        .cover-change-btn {
+            position: absolute; top: 12px; right: 14px;
+            background: rgba(0,0,0,0.65); backdrop-filter: blur(6px);
+            color: #fff; border: 1px solid rgba(255,255,255,0.3);
+            padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 700;
+            cursor: pointer; display: flex; align-items: center; gap: 5px; z-index: 10;
+        }
+
+        /* Area Channel Header Details */
+        .area-channel-header {
+            padding: 10px 16px 14px 16px;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .area-title-row {
+            display: flex; justify-content: space-between; align-items: flex-start;
+        }
+        .area-channel-title { font-size: 20px; font-weight: 900; letter-spacing: -0.5px; }
+        .area-pincode-badge {
+            font-size: 11px; font-weight: 800; background: rgba(37, 99, 235, 0.12);
+            color: #2563EB; padding: 2px 8px; border-radius: 6px; width: fit-content; margin-top: 3px;
+        }
+
+        .channel-follow-btn {
+            padding: 8px 20px; border-radius: 10px; font-size: 12.5px; font-weight: 800;
+            cursor: pointer; transition: all 0.2s; border: none;
+        }
+        .channel-follow-btn.unfollowed {
+            background: var(--primary-accent); color: var(--accent-contrast);
+        }
+        .channel-follow-btn.following {
+            background: var(--badge-bg); color: var(--text-main); border: 1px solid var(--border-subtle);
+        }
+
+        .channel-stats-row {
+            display: flex; align-items: center; gap: 16px; font-size: 12px; font-weight: 600; color: var(--text-muted);
+        }
+        .channel-stats-row b { color: var(--text-main); }
+
+        /* Social Proof Bar */
+        .social-proof-bar {
+            display: flex; align-items: center; gap: 10px; background: var(--badge-bg);
+            padding: 8px 12px; border-radius: 12px; border: 1px solid var(--border-subtle);
+            cursor: pointer;
+        }
+        .overlapping-avatars { display: flex; align-items: center; }
+        .overlapping-avatars img {
+            width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--bg-card);
+            margin-left: -7px; object-fit: cover;
+        }
+        .overlapping-avatars img:first-child { margin-left: 0; }
+        .social-proof-text { font-size: 11px; font-weight: 600; color: var(--text-main); }
+
+        /* Sponsored Banner */
+        .channel-sponsored-banner {
+            margin: 10px 16px 2px 16px;
+            background: linear-gradient(135deg, #1E1B4B, #312E81);
+            color: #fff; padding: 12px 14px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: space-between;
+            cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+        }
+        .sponsor-tag {
+            font-size: 8.5px; font-weight: 900; background: #F59E0B; color: #000;
+            padding: 1px 5px; border-radius: 4px;
+        }
+
+        /* Stories Tray */
+        .story-section {
+            background: var(--bg-card);
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .stories-scroll { display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; }
+        .stories-scroll::-webkit-scrollbar { display: none; }
+
+        .story-card-rect {
+            width: 76px; height: 112px; border-radius: 12px;
+            background: var(--badge-bg); border: 1px solid var(--border-subtle);
+            flex-shrink: 0; display: flex; flex-direction: column;
+            justify-content: space-between; padding: 6px; position: relative;
+            cursor: pointer; overflow: hidden; background-size: cover; background-position: center;
+        }
+        .story-card-rect.has-story { padding: 2px; background: var(--story-glow); border: none; }
+        .story-card-rect.sponsored-story { padding: 2px; background: var(--sponsor-glow); border: none; }
+        
+        .story-card-inner {
+            width: 100%; height: 100%; border-radius: 10px; background-size: cover;
+            background-position: center; display: flex; flex-direction: column;
+            justify-content: space-between; padding: 6px; background-color: var(--bg-card);
+        }
+        .story-add-card-inner {
+            width: 100%; height: 100%; border-radius: 10px;
+            background: var(--badge-bg); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 6px;
+        }
+        .story-add-icon-circle {
+            width: 32px; height: 32px; border-radius: 50%; background: var(--primary-accent);
+            color: var(--accent-contrast); display: flex; align-items: center; justify-content: center;
+            font-size: 18px; font-weight: 900;
+        }
+        .story-avatar-small { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #fff; object-fit: cover; }
+        .story-title { font-size: 10px; font-weight: 700; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* Post Creation */
+        .area-create-trigger { padding: 12px 16px; background: var(--divider); }
+        .area-create-box {
+            background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 14px;
+            padding: 12px 14px; display: flex; align-items: center; gap: 12px; cursor: pointer;
+        }
+
+        /* Feed Stream */
+        .feed-container { display: flex; flex-direction: column; background: var(--divider); gap: 8px; }
+        .post-card { background: var(--bg-card); display: flex; flex-direction: column; }
+        .post-header { padding: 12px 16px 8px 16px; display: flex; align-items: center; justify-content: space-between; }
+        .author-box { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .author-dp { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
+        .post-text { padding: 4px 16px 8px 16px; font-size: 13px; line-height: 1.45; }
+        .post-media-wrap { width: 100%; background: #000; cursor: pointer; }
+        .post-img { width: 100%; height: auto; max-height: 75vh; object-fit: contain; display: block; }
+        .post-stats-meta { padding: 8px 16px; font-size: 11px; color: var(--text-muted); display: flex; justify-content: space-between; }
+        .post-actions-row {
+            padding: 8px 16px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border-subtle);
+        }
+        .icon-btn {
+            background: none; border: none; cursor: pointer; display: flex; align-items: center;
+            gap: 5px; color: var(--text-main); font-size: 12px; font-weight: 600;
+        }
+        .icon-btn.liked { color: var(--red); font-weight: 700; }
+
+        /* Multi-Ad Infeed Carousel */
+        .infeed-ad-card {
+            background: var(--bg-card); padding: 12px 16px; border-top: 1px solid var(--border-subtle);
+            border-bottom: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 8px;
+        }
+        .ad-meta-row { display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: var(--text-muted); font-weight: 700; }
+        .ad-content-box {
+            position: relative; width: 100%; height: 160px; border-radius: 12px;
+            background-size: cover; background-position: center; overflow: hidden; cursor: pointer;
+            display: flex; flex-direction: column; justify-content: flex-end; padding: 12px;
+            color: #fff; transition: background-image 0.4s ease;
+        }
+        .ad-content-box::before {
+            content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+        }
+        .ad-info-text { position: relative; z-index: 2; }
+        .ad-progress-indicators { display: flex; gap: 4px; margin-top: 6px; }
+        .ad-prog-dot { height: 3px; flex: 1; background: rgba(255,255,255,0.4); border-radius: 2px; }
+        .ad-prog-dot.active { background: #fff; }
+
+        /* Comments */
+        .inline-comments-section {
+            border-top: 1px solid var(--border-subtle); background: var(--bg-card); padding: 12px 16px;
+            display: none; flex-direction: column; gap: 8px;
+        }
+        .inline-comments-header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 700; color: var(--text-muted); }
+        .inline-comments-list { max-height: 180px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .comment-item { display: flex; gap: 8px; font-size: 12px; align-items: flex-start; }
+        .comment-item img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; cursor: pointer; }
+        .comment-bubble { background: var(--badge-bg); padding: 6px 12px; border-radius: 12px; flex: 1; }
+        .comment-user-name { font-weight: 700; font-size: 11.5px; cursor: pointer; }
+        .comment-actions-footer {
+            display: flex; align-items: center; gap: 12px; margin-top: 4px; font-size: 10.5px; color: var(--text-muted);
+        }
+        .comment-like-trigger {
+            background: none; border: none; cursor: pointer; font-size: 11px; font-weight: 700; color: var(--text-muted);
+            display: flex; align-items: center; gap: 3px;
+        }
+        .comment-like-trigger.liked { color: var(--red); }
+        .comment-liked-by-link { cursor: pointer; font-weight: 600; text-decoration: underline; }
+
+        /* Modals */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: flex-end; justify-content: center; z-index: 120; backdrop-filter: blur(2px); }
+        .modal-overlay.center-box { align-items: center; }
+        .modal-sheet { width: 100%; max-width: 440px; background: var(--bg-card); border-radius: 20px 20px 0 0; padding: 20px; }
+        .modal-popup { width: 90%; max-width: 320px; background: var(--bg-card); border-radius: 16px; padding: 20px; text-align: center; }
+        .sheet-title { font-size: 15px; font-weight: 800; margin-bottom: 14px; }
+        .modal-input { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border-subtle); margin-bottom: 10px; background: var(--bg-page); color: var(--text-main); font-size: 13px; outline: none; }
+        .modal-btn { width: 100%; padding: 11px; background: var(--primary-accent); color: var(--accent-contrast); border: none; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; margin-top: 6px; }
+        .modal-btn.sub { background: var(--badge-bg); color: var(--text-main); margin-top: 8px; border: 1px solid var(--border-subtle); }
+
+        .gatekeep-modal-card {
+            width: 85%; max-width: 320px; background: #1C1C20; border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 20px; padding: 22px; text-align: center; color: #fff;
+        }
+
+        /* Fullscreen Viewers */
+        .story-viewer-overlay { position: fixed; inset: 0; background: #000; z-index: 300; display: none; flex-direction: column; justify-content: space-between; color: #fff; }
+        .story-viewer-progress-bar { width: 100%; height: 3px; background: rgba(255,255,255,0.3); }
+        .story-viewer-progress-fill { height: 100%; width: 0%; background: #fff; transition: width 4.5s linear; }
+        .story-viewer-top { padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+        .story-viewer-media-wrap { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+        .story-viewer-main-img { max-width: 100%; max-height: 82vh; object-fit: contain; }
+        .story-viewer-bottom-bar { padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; z-index: 10; gap: 10px; }
+
+        .media-lightbox-overlay { position: fixed; inset: 0; background: #000; z-index: 220; display: none; flex-direction: column; justify-content: space-between; }
+        .media-lightbox-header { padding: 16px; display: flex; justify-content: space-between; color: #fff; align-items: center; }
+        .media-lightbox-img { max-width: 100%; max-height: 70vh; object-fit: contain; margin: auto; }
+        .media-lightbox-footer { padding: 16px; background: rgba(0,0,0,0.85); color: #fff; text-align: center; }
+
+        /* Toast */
+        .app-toast-bar {
+            position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%) translateY(30px);
+            background: #18181B; color: #fff; border: 1px solid rgba(255,255,255,0.2);
+            padding: 10px 20px; border-radius: 24px; font-size: 12px; font-weight: 700;
+            display: flex; align-items: center; gap: 8px; z-index: 400; opacity: 0;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        }
+        .app-toast-bar.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+        /* Clean 4-Item Bottom Nav (Market Removed) */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+            width: 100%; max-width: 440px; background: var(--bg-card);
+            border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-around;
+            padding: 8px 0; z-index: 40;
+        }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center; color: var(--text-muted);
+            font-size: 10px; font-weight: 700; cursor: pointer; text-decoration: none; position: relative; gap: 3px;
+        }
+        .nav-item.active { color: var(--text-main); }
+
+        /* Sidebar Cluster Drawer */
+        .cluster-drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; display: none; }
+        .cluster-drawer {
+            position: fixed; top: 0; left: -290px; width: 285px; height: 100%; background: var(--bg-card);
+            z-index: 101; transition: left 0.25s ease; display: flex; flex-direction: column; padding: 16px;
+            overflow-y: auto;
+        }
+        .cluster-drawer.open { left: 0; }
+        .sidebar-profile-card {
+            background: var(--sidebar-card-grad); color: #FFFFFF; border-radius: 14px; padding: 14px;
+            margin-bottom: 12px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .sidebar-card-top { display: flex; align-items: center; gap: 10px; }
+        .sidebar-dp-img { width: 44px; height: 44px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.4); object-fit: cover; }
+        .sidebar-view-btn {
+            font-size: 11px; font-weight: 700; color: #FFFFFF; text-decoration: none;
+            background: rgba(255,255,255,0.15); padding: 6px 10px; border-radius: 8px;
+            text-align: center; display: flex; align-items: center; justify-content: center; gap: 4px;
+        }
+        .drawer-list { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+        .drawer-link {
+            padding: 12px 10px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;
+            color: var(--text-main); text-decoration: none; display: flex; align-items: center; justify-content: space-between;
+        }
+        .drawer-link:active { background: var(--badge-bg); }
+        .drawer-link.logout-btn { color: var(--red); margin-top: auto; border-top: 1px solid var(--border-subtle); }
+        .theme-inline-btn { width: 32px; height: 18px; border-radius: 10px; border: 1.5px solid var(--border-subtle); background: var(--bg-page); position: relative; cursor: pointer; }
+        .theme-inline-knob { width: 12px; height: 12px; border-radius: 50%; background: var(--text-main); position: absolute; top: 1.5px; left: 2px; transition: transform 0.2s; }
+        body.dark-mode .theme-inline-knob { transform: translateX(12px); background: #fff; }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+    <div class="app-toast-bar" id="appToastBar">
+        <span>✨</span>
+        <span id="toastMessageText">Notification</span>
+    </div>
+
+    <div class="app-shell" id="appShell">
+
+        <!-- Pull to Refresh -->
+        <div class="pull-refresh-indicator" id="pullRefreshIndicator">
+            <div class="pull-spinner" id="pullSpinner"></div>
+            <span id="pullRefreshText">Pull down to refresh</span>
+        </div>
+
+        <!-- Top Nav -->
+        <header class="top-nav">
+            <div class="brand-cluster-wrap">
+                <button class="cluster-btn" onclick="openClusterDrawer()" title="Menu">
+                    <div class="cluster-grid-icon">
+                        <div class="cluster-rect"></div>
+                        <div class="cluster-rect"></div>
+                        <div class="cluster-rect"></div>
+                        <div class="cluster-rect"></div>
+                    </div>
+                </button>
+                <span class="brand-logo-txt">POST</span>
+            </div>
+
+            <div class="top-right-tools">
+                <div class="search-container">
+                    <div class="search-box">
+                        <input type="text" class="search-input" id="universalSearchInput" placeholder="Search @user, #pin..." oninput="handleUniversalSearch(this.value)" onkeydown="if(event.key==='Enter') executeSearch()">
+                        <button class="search-lens-btn" onclick="executeSearch()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        </button>
+                    </div>
+                    <div class="search-hints-pop" id="searchHintsPop"></div>
+                </div>
+
+                <button class="bell-btn" onclick="alert('Notifications')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Balanced Semi-Urban Town Scenery Cover -->
+        <div class="area-cover-wrapper" id="areaCoverDisplay" onclick="openCoverLightbox()">
+            <img id="coverImgTag" src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1000" class="area-cover-img" alt="Cover">
+            <svg class="area-cover-mask-svg" viewBox="0 0 440 26" preserveAspectRatio="none">
+                <path d="M 0,26 L 0,0 Q 220,26 440,0 L 440,26 Z" fill="var(--bg-card)"></path>
+            </svg>
+
+            <button class="cover-change-btn" onclick="triggerPersonalCoverUpload(event)">
+                <span>📷</span> <span>Change Cover</span>
+            </button>
+            <input type="file" id="personalCoverInput" accept="image/*" style="display:none;" onchange="handlePersonalCoverSelected(this)">
+        </div>
+
+        <!-- Area Channel Header Details -->
+        <div class="area-channel-header">
+            <div class="area-title-row">
+                <div>
+                    <h2 class="area-channel-title" id="channelAreaTitle">Bangarmau</h2>
+                    <div class="area-pincode-badge" id="channelPincodeBadge">PIN: 209868</div>
+                </div>
+                <button class="channel-follow-btn unfollowed" id="channelFollowBtn" onclick="toggleChannelFollow()">
+                    Follow
+                </button>
+            </div>
+
+            <div class="channel-stats-row">
+                <span><b id="channelFollowersCount">680</b> Followers</span>
+                <span>&bull;</span>
+                <span><b id="channelViewsCount">3.4K</b> Views</span>
+            </div>
+
+            <!-- Social Proof Bar -->
+            <div class="social-proof-bar" onclick="openJoinedContactsSheet()">
+                <div class="overlapping-avatars" id="socialProofAvatars">
+                    <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80">
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80">
+                    <img src="https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=80">
+                </div>
+                <span class="social-proof-text" id="socialProofLabel">Ravi, Sunil & 14 neighbors you follow joined</span>
+                <span style="font-size:12px; margin-left:auto; color:var(--text-muted);">&rarr;</span>
+            </div>
+        </div>
+
+        <!-- Top Sponsored Channel Banner -->
+        <div class="channel-sponsored-banner" onclick="showAppToast('Opening sponsor link...')">
+            <div style="flex:1;">
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <span class="sponsor-tag">SPONSOR</span>
+                    <span style="font-size:12.5px; font-weight:800;">Bangarmau Mega Mart</span>
+                </div>
+                <span style="font-size:11px; opacity:0.85;">Free grocery doorstep delivery on orders above ₹499.</span>
+            </div>
+            <span style="font-size:11px; font-weight:800; background:rgba(255,255,255,0.2); padding:4px 8px; border-radius:8px;">Order &rarr;</span>
+        </div>
+
+        <!-- Hyperlocal Stories Tray -->
+        <div class="story-section">
+            <div class="stories-scroll">
+                <div class="story-card-rect has-story" onclick="triggerCreateStoryGatekeep()">
+                    <div class="story-add-card-inner">
+                        <div class="story-add-icon-circle">+</div>
+                        <span style="font-size:10px; font-weight:800; color:var(--text-main);">Add Story</span>
+                    </div>
+                </div>
+
+                <div class="story-card-rect sponsored-story" onclick="openStoryViewer('Royal Bakery', 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800', 'Local special: Fresh cream buns daily!')">
+                    <div class="story-card-inner" style="background-image:url('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=300');">
+                        <span style="font-size:8px; font-weight:900; background:#2563EB; color:#fff; padding:1px 5px; border-radius:4px; width:fit-content;">SPONSOR</span>
+                        <span class="story-title">Royal Bakery</span>
+                    </div>
+                </div>
+
+                <div class="story-card-rect has-story" onclick="openStoryViewer('Ravi Singh', 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800', 'Cleanliness drive photos!')">
+                    <div class="story-card-inner" style="background-image:url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200');">
+                        <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100" class="story-avatar-small">
+                        <span class="story-title">Ravi</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gatekept Post Creation Trigger -->
+        <div class="area-create-trigger">
+            <div class="area-create-box" onclick="triggerCreatePostGatekeep()">
+                <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=800" style="width:34px; height:34px; border-radius:50%; object-fit:cover;">
+                <span style="font-size:12.5px; color:var(--text-muted); flex:1;">Share an area announcement or update...</span>
+                <span style="font-size:11px; font-weight:700; background:var(--badge-bg); padding:4px 8px; border-radius:8px;">+ Post</span>
+            </div>
+        </div>
+
+        <!-- Feed Stream -->
+        <div class="feed-container" id="areaFeed">
+            
+            <!-- Area Post 1 -->
+            <article class="post-card" id="post_a101">
+                <div class="post-header">
+                    <div class="author-box" onclick="navigateToProfile('Ravi Singh')">
+                        <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100" class="author-dp">
+                        <div>
+                            <div style="font-size:13px; font-weight:700;">Ravi Singh</div>
+                            <div style="font-size:10px; color:var(--text-muted);">Sadar Bazar &bull; 20 mins ago</div>
+                        </div>
+                    </div>
+                    <button class="icon-btn" onclick="openPostDotsMenu('post_a101', false)">&#8942;</button>
+                </div>
+                <div class="post-text">Cleanliness drive successfully organized near Market Chowk this morning. Thank you neighbors for your active participation! 🙌</div>
+                <div class="post-media-wrap" onclick="openMediaLightbox('https://images.unsplash.com/photo-1513694203232-719a280e022f?w=1000', 'Cleanliness drive at Market Chowk')">
+                    <img src="https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800" class="post-img" alt="Community Post">
+                </div>
+                <div class="post-stats-meta">
+                    <span>340 Views</span>
+                    <span id="post_a101_comment_label">1 Comment</span>
+                </div>
+                <div class="post-actions-row">
+                    <button class="icon-btn" id="post_a101_like_btn" onclick="togglePostLike('post_a101')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                        <span class="like-c">42</span>
+                    </button>
+                    <button class="icon-btn" onclick="triggerCommentGatekeep('post_a101')">Comment</button>
+                    <button class="icon-btn" onclick="openSharePaperPlaneModal('post_a101')">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                    </button>
+                </div>
+                <div class="inline-comments-section" id="post_a101_comments_box">
+                    <div class="inline-comments-header"><span>Comments</span></div>
+                    <div class="inline-comments-list" id="post_a101_comments_list">
+                        <div class="comment-item" id="comment_ca101">
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80" onclick="navigateToProfile('Sunil Verma')">
+                            <div class="comment-bubble">
+                                <div class="comment-user-name" onclick="navigateToProfile('Sunil Verma')">Sunil Verma</div>
+                                <div>Great initiative by our local ward!</div>
+                                <div class="comment-actions-footer">
+                                    <button class="comment-like-trigger" id="ca101_like_btn" onclick="toggleCommentLike('ca101')">
+                                        <span>❤️</span> <span id="ca101_like_count">4</span>
+                                    </button>
+                                    <span class="comment-liked-by-link" onclick="openCommentLikedBySheet('ca101')">Liked by</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:6px; margin-top:4px;">
+                        <input type="text" id="post_a101_input" class="modal-input" style="margin-bottom:0; padding:6px 10px;" placeholder="Write a comment...">
+                        <button class="modal-btn" style="width:65px; margin-top:0; padding:6px;" onclick="addInlineComment('post_a101')">Post</button>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Multi-Ad Carousel (Auto 5s) -->
+            <div class="infeed-ad-card">
+                <div class="ad-meta-row">
+                    <span>AREA SPONSOR</span>
+                    <span id="adTimerBadge">Ad 1 of 3 (Auto 5s)</span>
+                </div>
+                <div class="ad-content-box" id="carouselAdBox" onclick="nextCarouselAdManual()">
+                    <div class="ad-info-text">
+                        <h4 id="carouselAdTitle" style="font-size:14px; font-weight:800;">Aarav Auto Services</h4>
+                        <p id="carouselAdSubtitle" style="font-size:11px; opacity:0.9;">Doorstep vehicle repair across Bangarmau.</p>
+                        <div class="ad-progress-indicators" id="carouselProgressDots">
+                            <div class="ad-prog-dot active"></div>
+                            <div class="ad-prog-dot"></div>
+                            <div class="ad-prog-dot"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Clean 4-Item Bottom Nav (Market Removed) -->
+        <nav class="bottom-nav">
+            <a href="home.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                <span>Home</span>
+            </a>
+            <a href="chat.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                <span>Chat</span>
+            </a>
+            <a href="area.html" class="nav-item active">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                <span>Area</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                <span>Profile</span>
+            </a>
+        </nav>
+
+    </div>
+
+    <!-- GATEKEEPING MODAL -->
+    <div class="modal-overlay center-box" id="gatekeepingAlertModal">
+        <div class="gatekeep-modal-card">
+            <span style="font-size:32px;">🔒</span>
+            <h4 style="font-size:15px; font-weight:800; margin-top:8px;">Follow Channel First</h4>
+            <p style="font-size:12px; opacity:0.85; margin:10px 0 16px 0;">Please follow this area channel to post updates or join the conversation.</p>
+            <button class="modal-btn" onclick="followFromGatekeepModal()">Follow Channel Now</button>
+            <button class="modal-btn sub" onclick="closeModal('gatekeepingAlertModal')" style="background:transparent; color:#fff; border:none;">Cancel</button>
+        </div>
+    </div>
+
+    <!-- SOCIAL PROOF MODAL -->
+    <div class="modal-overlay" id="joinedContactsModal">
+        <div class="modal-sheet">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <h4 style="font-size:14px; font-weight:800;">Neighbors You Follow in Channel</h4>
+                <button onclick="closeModal('joinedContactsModal')" style="background:none; border:none; font-size:20px; cursor:pointer;">&times;</button>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+                <div style="display:flex; align-items:center; gap:10px; padding:6px 0; cursor:pointer;" onclick="navigateToProfile('Ravi Singh')">
+                    <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80" style="width:34px; height:34px; border-radius:50%; object-fit:cover;">
+                    <div style="font-size:12.5px; font-weight:700;">Ravi Singh <span style="font-size:10.5px; color:var(--text-muted); font-weight:500;">@ravi_singh</span></div>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px; padding:6px 0; cursor:pointer;" onclick="navigateToProfile('Sunil Verma')">
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80" style="width:34px; height:34px; border-radius:50%; object-fit:cover;">
+                    <div style="font-size:12.5px; font-weight:700;">Sunil Verma <span style="font-size:10.5px; color:var(--text-muted); font-weight:500;">@sunil_v</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CREATE POST MODAL -->
+    <div class="modal-overlay" id="createPostModal">
+        <div class="modal-sheet">
+            <div class="sheet-title">Create Channel Post</div>
+            <textarea id="createPostText" class="modal-input" style="min-height:90px; resize:none;" placeholder="Write an announcement or question for this area..."></textarea>
+            <input type="file" id="postImgInput" accept="image/*" style="display:none;" onchange="handleNewPostMedia(this)">
+            <button class="modal-btn sub" onclick="document.getElementById('postImgInput').click()" style="margin-top:0; margin-bottom:10px;">+ Photo</button>
+            <div id="newPostPreviewBox" style="display:none; margin-bottom:10px;">
+                <img id="newPostPreviewImg" src="" style="width:100%; max-height:160px; object-fit:cover; border-radius:10px;">
+            </div>
+            <button class="modal-btn" onclick="submitChannelPost()">Publish Post</button>
+            <button class="modal-btn sub" onclick="closeModal('createPostModal')">Cancel</button>
+        </div>
+    </div>
+
+    <!-- LIKED BY SHEET -->
+    <div class="modal-overlay" id="commentLikedByModal">
+        <div class="modal-sheet">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <h4 style="font-size:14px; font-weight:800;">Liked by</h4>
+                <button onclick="closeModal('commentLikedByModal')" style="background:none; border:none; font-size:22px; cursor:pointer;">&times;</button>
+            </div>
+            <div id="likedByUsersListContainer" style="display:flex; flex-direction:column; gap:8px;"></div>
+        </div>
+    </div>
+
+    <!-- POST DOTS MODAL -->
+    <div class="modal-overlay center-box" id="postDotsModal">
+        <div class="modal-popup" style="padding:10px;">
+            <div id="postDotsOwnerOptions" style="display:none;">
+                <div class="dropdown-item" onclick="triggerEditCurrentPost()" style="padding:10px; cursor:pointer; font-size:13px; font-weight:600;">Edit Post</div>
+                <div class="dropdown-item" style="color:var(--red); padding:10px; cursor:pointer; font-size:13px; font-weight:600;" onclick="triggerDeleteCurrentPost()">Delete Post</div>
+            </div>
+            <div id="postDotsVisitorOptions" style="display:none;">
+                <div class="dropdown-item" style="color:var(--red); padding:10px; cursor:pointer; font-size:13px; font-weight:600;" onclick="alert('Post reported for review.'); closeModal('postDotsModal');">Report Post</div>
+            </div>
+            <div class="dropdown-item" onclick="closeModal('postDotsModal')" style="padding:10px; cursor:pointer; font-size:13px; font-weight:600; border-top:1px solid var(--border-subtle);">Cancel</div>
+        </div>
+    </div>
+
+    <!-- SHARE PAPER PLANE MODAL -->
+    <div class="modal-overlay" id="paperPlaneShareModal">
+        <div class="modal-sheet" style="text-align:center;">
+            <div class="sheet-title">Share Channel Post</div>
+            <div style="display:flex; justify-content:center; gap:26px; padding:12px 0;">
+                <button onclick="shareDirectWhatsApp()" style="background:none; border:none; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:4px;">
+                    <svg width="44" height="44" viewBox="0 0 24 24" fill="#25D366"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-5.46-4.45-9.92-9.91-9.92zM17.5 14.39c-.23.64-1.34 1.23-1.87 1.28-.49.05-1.12.07-3.6-1.02-3.14-1.38-5.18-4.57-5.33-4.78-.16-.21-1.28-1.7-1.28-3.24 0-1.54.81-2.29 1.1-2.61.29-.32.64-.4.86-.4.22 0 .43.01.62.02.2.01.47-.08.73.55.27.64.91 2.22.99 2.38.08.16.13.35.03.56-.11.21-.16.35-.32.53-.16.19-.34.42-.49.56-.16.16-.33.33-.14.66.19.32.84 1.38 1.8 2.24 1.24 1.1 2.28 1.44 2.61 1.6.32.16.51.13.7-.08.19-.21.81-.94 1.02-1.27.21-.32.43-.27.73-.16.29.11 1.87.88 2.19 1.04.32.16.53.24.61.37.08.13.08.77-.15 1.41z"/></svg>
+                    <span style="font-size:10px; font-weight:700;">WhatsApp</span>
+                </button>
+                <button onclick="copyPostLinkDirect()" style="background:none; border:none; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:4px;">
+                    <div style="width:44px; height:44px; border-radius:50%; background:var(--badge-bg); border:1px solid var(--border-subtle); display:flex; align-items:center; justify-content:center;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                    </div>
+                    <span style="font-size:10px; font-weight:700;">Copy Link</span>
+                </button>
+            </div>
+            <button class="modal-btn sub" onclick="closeModal('paperPlaneShareModal')">Cancel</button>
+        </div>
+    </div>
+
+    <!-- MEDIA LIGHTBOX -->
+    <div class="media-lightbox-overlay" id="mediaLightbox">
+        <div class="media-lightbox-header">
+            <span style="font-size:12px; font-weight:700;">Photo</span>
+            <button onclick="closeMediaLightbox()" style="background:none; border:none; color:#fff; font-size:24px; cursor:pointer;">&times;</button>
+        </div>
+        <img id="lightboxImg" class="media-lightbox-img" src="">
+        <div class="media-lightbox-footer" id="lightboxDesc" style="font-size:13px;"></div>
+    </div>
+
+    <!-- FULLSCREEN STORY VIEWER -->
+    <div class="story-viewer-overlay" id="storyViewerOverlay">
+        <div class="story-viewer-progress-bar"><div class="story-viewer-progress-fill" id="storyProgressFill"></div></div>
+        <div class="story-viewer-top">
+            <div style="display:flex; align-items:center; gap:8px;" onclick="navigateToProfile(document.getElementById('storyViewerAuthorName').textContent)">
+                <img src="" id="storyViewerDp" style="width:34px; height:34px; border-radius:50%; border:1.5px solid #fff; object-fit:cover;">
+                <span id="storyViewerAuthorName" style="font-weight:700; font-size:13px;"></span>
+            </div>
+            <button onclick="closeStoryViewer()" style="background:none; border:none; color:#fff; font-size:24px; cursor:pointer;">&times;</button>
+        </div>
+        <div class="story-viewer-media-wrap">
+            <img src="" id="storyViewerMainImg" class="story-viewer-main-img">
+            <div id="storyViewerTextOverlay" style="position:absolute; bottom:60px; font-size:18px; font-weight:800; text-align:center; padding:10px 20px; text-shadow:0 2px 8px #000;"></div>
+        </div>
+        <div class="story-viewer-bottom-bar">
+            <input type="text" class="story-reply-fake-input" style="flex:1; border:1px solid rgba(255,255,255,0.4); border-radius:20px; padding:8px 14px; font-size:12px; color:#fff; background:rgba(0,0,0,0.3); outline:none;" placeholder="Reply to story...">
+            <button onclick="showAppToast('Reacted ❤️')" style="background:none; border:none; font-size:22px; cursor:pointer;">❤️</button>
+        </div>
+    </div>
+
+    <!-- SIDEBAR DRAWER -->
+    <div class="cluster-drawer-overlay" id="clusterDrawerOverlay" onclick="closeClusterDrawer()"></div>
+    <div class="cluster-drawer" id="clusterDrawer">
+        <div class="sidebar-profile-card">
+            <div class="sidebar-card-top">
+                <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100" class="sidebar-dp-img" id="sidebarDpImg">
+                <div>
+                    <div style="font-size:14px; font-weight:800;" id="sidebarNameText">Aarav Sharma</div>
+                    <div style="font-size:11px; opacity:0.8;" id="sidebarHandleText">@aarav_sharma</div>
+                </div>
+            </div>
+            <a href="profile.html" class="sidebar-view-btn"><span>View Profile</span> &#8594;</a>
+        </div>
+
+        <div class="drawer-list">
+            <div class="drawer-link" onclick="window.location.href='home.html'">🏠 Home Feed</div>
+            <div class="drawer-link" onclick="window.location.href='chat.html'">💬 Messages</div>
+            <div class="drawer-link" onclick="window.location.href='profile.html'">👤 My Profile</div>
+            <div class="drawer-link" onclick="toggleThemeInline()">
+                <span>Theme Mode</span>
+                <div class="theme-inline-btn"><div class="theme-inline-knob"></div></div>
+            </div>
+            <div class="drawer-link logout-btn" onclick="alert('Logged out');">Log Out</div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let currentPincode = "209868";
+        let currentAreaName = "Bangarmau";
+        let isFollowingChannel = false;
+        let createdMediaUrl = null;
+        let activeSharingPostId = null;
+        let activeMenuPostId = null;
+
+        let postLikesState = {
+            'post_a101': { liked: false, count: 42 }
+        };
+
+        let commentLikesState = {
+            'ca101': {
+                liked: false,
+                count: 4,
+                likedBy: [
+                    { name: "Sunil Verma", dp: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80" },
+                    { name: "Ravi Singh", dp: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80" },
+                    { name: "Aarav Sharma", dp: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80" }
+                ]
+            }
+        };
+
+        const sponsoredAdsList = [
+            { title: "Aarav Auto Services", subtitle: "Doorstep vehicle repair across Bangarmau.", bg: "https://images.unsplash.com/photo-1486006920555-c77dce18193b?w=800" },
+            { title: "Royal Sweets", subtitle: "Fresh sweets delivery in 30 minutes.", bg: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800" },
+            { title: "Gupta Electricals", subtitle: "All home wiring & inverters available.", bg: "https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=800" }
+        ];
+        let currentAdIndex = 0;
+        let adCarouselTimer = null;
+        let storyViewerTimer = null;
+
+        // Global Channels Registry
+        const DEFAULT_CHANNELS = [
+            { pin: "209868", name: "Bangarmau", active: true },
+            { pin: "209871", name: "Safipur", active: true },
+            { pin: "209869", name: "Ganj Muradabad", active: true }
+        ];
+
+        function getGlobalChannels() {
+            return JSON.parse(localStorage.getItem('post_global_channels')) || DEFAULT_CHANNELS;
+        }
+
+        function saveGlobalChannel(pin, name) {
+            let channels = getGlobalChannels();
+            if (!channels.some(c => c.pin === pin)) {
+                channels.push({ pin: pin, name: name, active: true });
+                localStorage.setItem('post_global_channels', JSON.stringify(channels));
+            }
+        }
+
+        window.addEventListener('load', () => {
+            parseUrlParameters();
+            loadPersonalCoverPhoto();
+            initAdCarousel();
+            initPullToRefresh();
+        });
+
+        // Universal Search Engine
+        function handleUniversalSearch(val) {
+            const pop = document.getElementById('searchHintsPop');
+            if (!pop) return;
+
+            const q = val.trim();
+            if (!q) {
+                pop.innerHTML = `
+                    <div class="search-hint-pill" onclick="setSearchFilter('@')"><span><b>@</b> User Profile</span> <span style="font-size:10px;">People</span></div>
+                    <div class="search-hint-pill" onclick="setSearchFilter('#IN ')"><span><b>#IN</b> Pincode Channel</span> <span style="font-size:10px;">Location</span></div>
+                `;
+                pop.style.display = 'flex';
+                return;
+            }
+
+            pop.style.display = 'flex';
+            const clean = q.replace('#IN', '').replace('#in', '').replace('#', '').trim();
+            const channels = getGlobalChannels();
+
+            if (/^\d{3,6}$/.test(clean) || q.toLowerCase().startsWith('#in')) {
+                const matchedChannel = channels.find(c => c.pin === clean || c.name.toLowerCase().includes(clean.toLowerCase()));
+
+                if (matchedChannel) {
+                    pop.innerHTML = `
+                        <div class="search-hint-pill" onclick="window.location.href='area.html?pin=${matchedChannel.pin}&name=${encodeURIComponent(matchedChannel.name)}'">
+                            <span>📍 <b>Channel Active:</b> ${matchedChannel.name} (#IN ${matchedChannel.pin})</span>
+                            <span style="font-size:10px; color:#2563EB; font-weight:800;">Open &rarr;</span>
+                        </div>
+                    `;
+                    return;
+                } else if (/^\d{6}$/.test(clean)) {
+                    pop.innerHTML = `
+                        <div class="search-hint-pill" onclick="triggerCreateChannelFlow('${clean}')">
+                            <span>➕ <b>Channel Not Found:</b> Create Channel for #IN ${clean}</span>
+                            <span style="font-size:10px; color:#10B981; font-weight:900; background:#DCFCE7; padding:2px 8px; border-radius:6px;">Create &rarr;</span>
+                        </div>
+                    `;
+                    return;
+                }
+            }
+
+            if (q.startsWith('@')) {
+                const uTerm = q.replace('@', '').toLowerCase();
+                pop.innerHTML = `
+                    <div class="search-hint-pill" onclick="window.location.href='profile.html?user=${encodeURIComponent(uTerm)}'">
+                        <span>👤 Open Profile for <b>@${uTerm}</b></span>
+                        <span style="font-size:10px; color:#2563EB;">View &rarr;</span>
+                    </div>
+                `;
+                return;
+            }
+
+            pop.innerHTML = `
+                <div class="search-hint-pill" onclick="executeSearch()">
+                    <span>🔍 Search across POST for <b>"${q}"</b></span>
+                    <span style="font-size:10px; color:#71717A;">Search &rarr;</span>
+                </div>
+            `;
+        }
+
+        function triggerCreateChannelFlow(pin) {
+            const areaName = prompt(`Enter Town / Locality name for PIN ${pin}:`, `Area ${pin}`);
+            if (areaName && areaName.trim()) {
+                saveGlobalChannel(pin, areaName.trim());
+                showAppToast(`Channel created for ${areaName}! 🚀`);
+                window.location.href = `area.html?pin=${encodeURIComponent(pin)}&name=${encodeURIComponent(areaName.trim())}`;
+            }
+        }
+
+        function setSearchFilter(prefix) {
+            const inp = document.getElementById('universalSearchInput');
+            inp.value = prefix; inp.focus();
+            handleUniversalSearch(prefix);
+        }
+
+        function executeSearch() {
+            const q = document.getElementById('universalSearchInput').value.trim();
+            if (q) showAppToast(`Searching for: ${q}`);
+        }
+
+        window.addEventListener('click', (e) => {
+            if (!e.target.closest('.search-container')) {
+                const pop = document.getElementById('searchHintsPop');
+                if (pop) pop.style.display = 'none';
+            }
+        });
+
+        function parseUrlParameters() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const pin = urlParams.get('pin');
+            const name = urlParams.get('name');
+
+            if (pin) currentPincode = pin;
+            if (name) currentAreaName = decodeURIComponent(name);
+
+            document.getElementById('channelAreaTitle').textContent = currentAreaName;
+            document.getElementById('channelPincodeBadge').textContent = `PIN: ${currentPincode}`;
+            
+            saveGlobalChannel(currentPincode, currentAreaName);
+            isFollowingChannel = localStorage.getItem(`follow_${currentPincode}`) === 'true';
+            updateFollowBtnUI();
+        }
+
+        function loadPersonalCoverPhoto() {
+            const savedCover = localStorage.getItem(`cover_${currentPincode}`);
+            if (savedCover) document.getElementById('coverImgTag').src = savedCover;
+        }
+
+        function triggerPersonalCoverUpload(e) {
+            e.stopPropagation();
+            document.getElementById('personalCoverInput').click();
+        }
+
+        function handlePersonalCoverSelected(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const result = e.target.result;
+                    document.getElementById('coverImgTag').src = result;
+                    localStorage.setItem(`cover_${currentPincode}`, result);
+                    showAppToast("Cover updated for your view ✨");
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function openCoverLightbox() {
+            const currentSrc = document.getElementById('coverImgTag').src;
+            openMediaLightbox(currentSrc, `${currentAreaName} Channel Cover`);
+        }
+
+        function toggleChannelFollow() {
+            isFollowingChannel = !isFollowingChannel;
+            localStorage.setItem(`follow_${currentPincode}`, isFollowingChannel);
+            updateFollowBtnUI();
+            
+            const countEl = document.getElementById('channelFollowersCount');
+            let count = parseInt(countEl.textContent, 10);
+            count = isFollowingChannel ? count + 1 : count - 1;
+            countEl.textContent = count;
+
+            showAppToast(isFollowingChannel ? `Followed ${currentAreaName} Channel ✨` : `Unfollowed channel`);
+        }
+
+        function updateFollowBtnUI() {
+            const btn = document.getElementById('channelFollowBtn');
+            if (isFollowingChannel) {
+                btn.textContent = "Following";
+                btn.className = "channel-follow-btn following";
+            } else {
+                btn.textContent = "Follow";
+                btn.className = "channel-follow-btn unfollowed";
+            }
+        }
+
+        function triggerCreatePostGatekeep() {
+            if (!isFollowingChannel) openModal('gatekeepingAlertModal');
+            else openModal('createPostModal');
+        }
+
+        function triggerCommentGatekeep(postId) {
+            if (!isFollowingChannel) openModal('gatekeepingAlertModal');
+            else {
+                const box = document.getElementById(`${postId}_comments_box`);
+                box.style.display = (box.style.display === 'flex') ? 'none' : 'flex';
+            }
+        }
+
+        function triggerCreateStoryGatekeep() {
+            if (!isFollowingChannel) openModal('gatekeepingAlertModal');
+            else showAppToast("Opening Story Creator ✨");
+        }
+
+        function followFromGatekeepModal() {
+            closeModal('gatekeepingAlertModal');
+            toggleChannelFollow();
+            showAppToast("You can now post and comment! ✨");
+        }
+
+        function openJoinedContactsSheet() { openModal('joinedContactsModal'); }
+
+        function togglePostLike(postId) {
+            const state = postLikesState[postId] || { liked: false, count: 0 };
+            const btn = document.getElementById(`${postId}_like_btn`);
+            const countSpan = btn.querySelector('.like-c');
+
+            if (!state.liked) {
+                state.liked = true; state.count += 1; btn.classList.add('liked');
+            } else {
+                state.liked = false; state.count -= 1; btn.classList.remove('liked');
+            }
+            countSpan.textContent = state.count;
+            postLikesState[postId] = state;
+        }
+
+        function toggleCommentLike(commentId) {
+            const state = commentLikesState[commentId] || { liked: false, count: 0, likedBy: [] };
+            const btn = document.getElementById(`${commentId}_like_btn`);
+            const countSpan = document.getElementById(`${commentId}_like_count`);
+            const currentUser = { name: "You (Aarav)", dp: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80" };
+
+            if (!state.liked) {
+                state.liked = true; state.count += 1; btn.classList.add('liked');
+                state.likedBy.unshift(currentUser);
+            } else {
+                state.liked = false; state.count -= 1; btn.classList.remove('liked');
+                state.likedBy = state.likedBy.filter(u => u.name !== "You (Aarav)");
+            }
+            countSpan.textContent = state.count;
+            commentLikesState[commentId] = state;
+        }
+
+        function openCommentLikedBySheet(commentId) {
+            const state = commentLikesState[commentId] || { likedBy: [] };
+            const container = document.getElementById('likedByUsersListContainer');
+            if (!state.likedBy || state.likedBy.length === 0) {
+                container.innerHTML = `<div style="font-size:12px; color:var(--text-muted); text-align:center; padding:16px;">No likes yet.</div>`;
+            } else {
+                container.innerHTML = state.likedBy.map(user => `
+                    <div style="display:flex; align-items:center; gap:10px; padding:6px 0; cursor:pointer;" onclick="navigateToProfile('${user.name}')">
+                        <img src="${user.dp}" style="width:34px; height:34px; border-radius:50%; object-fit:cover;">
+                        <span style="font-size:13px; font-weight:700;">${user.name}</span>
+                    </div>
+                `).join('');
+            }
+            openModal('commentLikedByModal');
+        }
+
+        function addInlineComment(postId) {
+            const inp = document.getElementById(`${postId}_input`);
+            const txt = inp.value.trim();
+            if (!txt) return;
+            const list = document.getElementById(`${postId}_comments_list`);
+            const newCommentId = 'ca_' + Date.now();
+            commentLikesState[newCommentId] = { liked: false, count: 0, likedBy: [] };
+
+            const div = document.createElement('div');
+            div.className = 'comment-item';
+            div.id = `comment_${newCommentId}`;
+            div.innerHTML = `
+                <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80" onclick="navigateToProfile('Aarav Sharma')">
+                <div class="comment-bubble">
+                    <div class="comment-user-name" onclick="navigateToProfile('Aarav Sharma')">Aarav Sharma</div>
+                    <div>${txt}</div>
+                    <div class="comment-actions-footer">
+                        <button class="comment-like-trigger" id="${newCommentId}_like_btn" onclick="toggleCommentLike('${newCommentId}')">
+                            <span>❤️</span> <span id="${newCommentId}_like_count">0</span>
+                        </button>
+                        <span class="comment-liked-by-link" onclick="openCommentLikedBySheet('${newCommentId}')">Liked by</span>
+                    </div>
+                </div>
+            `;
+            list.appendChild(div);
+            inp.value = '';
+        }
+
+        function handleNewPostMedia(input) {
+            if (input.files && input.files[0]) {
+                const r = new FileReader();
+                r.onload = e => {
+                    createdMediaUrl = e.target.result;
+                    document.getElementById('newPostPreviewImg').src = createdMediaUrl;
+                    document.getElementById('newPostPreviewBox').style.display = 'block';
+                };
+                r.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function submitChannelPost() {
+            const txt = document.getElementById('createPostText').value.trim();
+            if (!txt && !createdMediaUrl) return;
+
+            const feed = document.getElementById('areaFeed');
+            const newId = 'post_a' + Date.now();
+            const article = document.createElement('article');
+            article.className = 'post-card';
+            article.id = newId;
+
+            postLikesState[newId] = { liked: false, count: 0 };
+            let mediaMarkup = createdMediaUrl ? `
+                <div class="post-media-wrap" onclick="openMediaLightbox('${createdMediaUrl}', '${txt}')">
+                    <img src="${createdMediaUrl}" class="post-img">
+                </div>
+            ` : '';
+
+            article.innerHTML = `
+                <div class="post-header">
+                    <div class="author-box" onclick="navigateToProfile('Aarav Sharma')">
+                        <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100" class="author-dp">
+                        <div>
+                            <div style="font-size:13px; font-weight:700;">Aarav Sharma</div>
+                            <div style="font-size:10px; color:var(--text-muted);">${currentAreaName} &bull; Just now</div>
+                        </div>
+                    </div>
+                    <button class="icon-btn" onclick="openPostDotsMenu('${newId}', true)">&#8942;</button>
+                </div>
+                ${txt ? `<div class="post-text">${txt}</div>` : ''}
+                ${mediaMarkup}
+                <div class="post-stats-meta"><span>1 View</span><span>0 Comments</span></div>
+                <div class="post-actions-row">
+                    <button class="icon-btn" id="${newId}_like_btn" onclick="togglePostLike('${newId}')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                        <span class="like-c">0</span>
+                    </button>
+                    <button class="icon-btn" onclick="triggerCommentGatekeep('${newId}')">Comment</button>
+                    <button class="icon-btn" onclick="openSharePaperPlaneModal('${newId}')">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                    </button>
+                </div>
+            `;
+
+            feed.insertBefore(article, feed.firstChild);
+            document.getElementById('createPostText').value = '';
+            createdMediaUrl = null;
+            document.getElementById('newPostPreviewBox').style.display = 'none';
+            closeModal('createPostModal');
+            showAppToast("Post published to channel ✨");
+        }
+
+        function navigateToProfile(userName) {
+            let views = parseInt(localStorage.getItem(`views_${userName}`) || "1200", 10);
+            views += 1;
+            localStorage.setItem(`views_${userName}`, views);
+            window.location.href = `profile.html?user=${encodeURIComponent(userName)}&v=${views}`;
+        }
+
+        function openSharePaperPlaneModal(postId) {
+            activeSharingPostId = postId;
+            openModal('paperPlaneShareModal');
+        }
+
+        function shareDirectWhatsApp() {
+            const url = `${window.location.origin}/area.html?pin=${currentPincode}&post=${activeSharingPostId}`;
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent('Check out this update from ' + currentAreaName + ': ' + url)}`, '_blank');
+            closeModal('paperPlaneShareModal');
+        }
+
+        function copyPostLinkDirect() {
+            const url = `${window.location.origin}/area.html?pin=${currentPincode}&post=${activeSharingPostId}`;
+            navigator.clipboard.writeText(url).then(() => {
+                showAppToast("Link copied to clipboard ✨");
+                closeModal('paperPlaneShareModal');
+            });
+        }
+
+        function openPostDotsMenu(postId, isOwner) {
+            activeMenuPostId = postId;
+            document.getElementById('postDotsOwnerOptions').style.display = isOwner ? 'block' : 'none';
+            document.getElementById('postDotsVisitorOptions').style.display = isOwner ? 'none' : 'block';
+            openModal('postDotsModal');
+        }
+
+        function triggerEditCurrentPost() {
+            closeModal('postDotsModal');
+            const postEl = document.getElementById(activeMenuPostId);
+            const textEl = postEl.querySelector('.post-text');
+            const updated = prompt("Edit post:", textEl.textContent);
+            if (updated) textEl.textContent = updated;
+        }
+
+        function triggerDeleteCurrentPost() {
+            closeModal('postDotsModal');
+            if (confirm("Delete this post?")) document.getElementById(activeMenuPostId)?.remove();
+        }
+
+        function initAdCarousel() {
+            updateAdDisplay();
+            adCarouselTimer = setInterval(() => {
+                currentAdIndex = (currentAdIndex + 1) % sponsoredAdsList.length;
+                updateAdDisplay();
+            }, 5000);
+        }
+        function nextCarouselAdManual() {
+            currentAdIndex = (currentAdIndex + 1) % sponsoredAdsList.length;
+            updateAdDisplay();
+            clearInterval(adCarouselTimer);
+            adCarouselTimer = setInterval(() => {
+                currentAdIndex = (currentAdIndex + 1) % sponsoredAdsList.length;
+                updateAdDisplay();
+            }, 5000);
+        }
+        function updateAdDisplay() {
+            const ad = sponsoredAdsList[currentAdIndex];
+            const box = document.getElementById('carouselAdBox');
+            box.style.backgroundImage = `url('${ad.bg}')`;
+            document.getElementById('carouselAdTitle').textContent = ad.title;
+            document.getElementById('carouselAdSubtitle').textContent = ad.subtitle;
+            document.getElementById('adTimerBadge').textContent = `Ad ${currentAdIndex + 1} of ${sponsoredAdsList.length} (Auto 5s)`;
+            const dots = document.querySelectorAll('#carouselProgressDots .ad-prog-dot');
+            dots.forEach((dot, idx) => { dot.classList.toggle('active', idx === currentAdIndex); });
+        }
+
+        function initPullToRefresh() {
+            let startY = 0, currentY = 0, isPulling = false;
+            const indicator = document.getElementById('pullRefreshIndicator');
+            const spinner = document.getElementById('pullSpinner');
+            const text = document.getElementById('pullRefreshText');
+
+            window.addEventListener('touchstart', (e) => {
+                if (window.scrollY === 0) { startY = e.touches[0].clientY; isPulling = true; }
+            }, { passive: true });
+
+            window.addEventListener('touchmove', (e) => {
+                if (!isPulling) return;
+                currentY = e.touches[0].clientY;
+                const distance = currentY - startY;
+                if (distance > 0 && distance < 120 && window.scrollY === 0) {
+                    indicator.style.height = `${distance * 0.55}px`;
+                    text.textContent = distance > 60 ? "Release to refresh" : "Pull down to refresh";
+                }
+            }, { passive: false });
+
+            window.addEventListener('touchend', () => {
+                if (!isPulling) return;
+                isPulling = false;
+                const distance = currentY - startY;
+                if (distance > 60 && window.scrollY === 0) {
+                    indicator.style.height = '42px';
+                    spinner.style.display = 'block';
+                    text.textContent = "Refreshing channel...";
+                    setTimeout(() => {
+                        spinner.style.display = 'none';
+                        indicator.style.height = '0px';
+                        text.textContent = "Pull down to refresh";
+                        showAppToast("Channel refreshed ✨");
+                    }, 900);
+                } else {
+                    indicator.style.height = '0px';
+                }
+            });
+        }
+
+        function openMediaLightbox(url, desc) {
+            document.getElementById('lightboxImg').src = url;
+            document.getElementById('lightboxDesc').textContent = desc || '';
+            document.getElementById('mediaLightbox').style.display = 'flex';
+        }
+        function closeMediaLightbox() { document.getElementById('mediaLightbox').style.display = 'none'; }
+
+        function openStoryViewer(author, imgUrl, desc) {
+            document.getElementById('storyViewerAuthorName').textContent = author;
+            document.getElementById('storyViewerDp').src = imgUrl;
+            document.getElementById('storyViewerMainImg').src = imgUrl;
+            document.getElementById('storyViewerTextOverlay').textContent = desc || '';
+            const fill = document.getElementById('storyProgressFill');
+            fill.style.width = '0%';
+            document.getElementById('storyViewerOverlay').style.display = 'flex';
+            setTimeout(() => { fill.style.width = '100%'; }, 50);
+            clearTimeout(storyViewerTimer);
+            storyViewerTimer = setTimeout(() => { closeStoryViewer(); }, 4600);
+        }
+        function closeStoryViewer() {
+            clearTimeout(storyViewerTimer);
+            document.getElementById('storyViewerOverlay').style.display = 'none';
+        }
+
+        function showAppToast(msg) {
+            const t = document.getElementById('appToastBar');
+            document.getElementById('toastMessageText').textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        function openClusterDrawer() {
+            document.getElementById('clusterDrawerOverlay').style.display = 'block';
+            document.getElementById('clusterDrawer').classList.add('open');
+        }
+        function closeClusterDrawer() {
+            document.getElementById('clusterDrawerOverlay').style.display = 'none';
+            document.getElementById('clusterDrawer').classList.remove('open');
+        }
+
+        function toggleThemeInline() { document.body.classList.toggle('dark-mode'); }
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    </script>
+</body>
+</html>

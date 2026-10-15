@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>POST - Hyperlocal Market</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-page: #FFFFFF;
+            --bg-card: #FFFFFF;
+            --text-main: #18181B;
+            --text-muted: #71717A;
+            --border-subtle: #E4E4E7;
+            --divider: #F4F4F5;
+            --primary-accent: #18181B;
+            --accent-contrast: #FFFFFF;
+            --badge-bg: #F4F4F5;
+            --green: #10B981;
+            --blue: #2563EB;
+            --red: #DC2626;
+            --sidebar-card-grad: linear-gradient(135deg, #18181B, #27272A);
+        }
+
+        body.dark-mode {
+            --bg-page: #09090B;
+            --bg-card: #121215;
+            --text-main: #F4F4F5;
+            --text-muted: #A1A1AA;
+            --border-subtle: #27272A;
+            --divider: #18181B;
+            --primary-accent: #FFFFFF;
+            --accent-contrast: #09090B;
+            --badge-bg: #1E1E22;
+            --sidebar-card-grad: linear-gradient(135deg, #1E1E24, #121215);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .app-shell {
+            width: 100%;
+            max-width: 440px;
+            min-height: 100vh;
+            background: var(--bg-page);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 80px;
+        }
+
+        /* Top Nav */
+        .top-nav {
+            position: sticky;
+            top: 0;
+            background: var(--bg-page);
+            z-index: 50;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .brand-cluster-wrap { display: flex; align-items: center; gap: 10px; }
+
+        .cluster-btn {
+            width: 38px;
+            height: 38px;
+            background: #F4F4F6;
+            border: 1px solid #E4E4E7;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: 0;
+        }
+        .cluster-btn:active { transform: scale(0.92); }
+        .cluster-grid-icon {
+            display: grid;
+            grid-template-columns: repeat(2, 8px);
+            grid-template-rows: repeat(2, 8px);
+            gap: 3.5px;
+        }
+        .cluster-rect {
+            width: 8px;
+            height: 8px;
+            background: #18181B;
+            border-radius: 2.5px;
+        }
+        body.dark-mode .cluster-rect { background: #FFFFFF; }
+
+        .brand-logo-txt { font-size: 20px; font-weight: 900; letter-spacing: -0.5px; }
+
+        .top-right-tools { display: flex; align-items: center; gap: 8px; flex: 1; justify-content: flex-end; }
+        .search-container { position: relative; width: 100%; max-width: 195px; }
+        .search-box {
+            display: flex; align-items: center; background: var(--badge-bg);
+            border: 1px solid var(--border-subtle); border-radius: 10px;
+            padding: 4px 6px 4px 10px; width: 100%;
+        }
+        .search-input { width: 100%; border: none; outline: none; font-size: 11.5px; color: var(--text-main); background: transparent; }
+        .search-lens-btn { background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 4px; display: flex; align-items: center; }
+
+        .search-hints-pop {
+            position: absolute; top: 38px; right: 0; width: 250px;
+            background: var(--bg-card); border: 1px solid var(--border-subtle);
+            border-radius: 12px; box-shadow: 0 10px 28px rgba(0,0,0,0.2);
+            display: none; flex-direction: column; padding: 6px; z-index: 60;
+        }
+        .search-hint-pill {
+            padding: 8px 10px; font-size: 11px; font-weight: 600; color: var(--text-muted);
+            cursor: pointer; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .search-hint-pill:hover { background: var(--badge-bg); color: var(--text-main); }
+        .search-hint-pill b { color: var(--text-main); }
+
+        .loc-badge-btn {
+            background: var(--badge-bg);
+            border: 1px solid var(--border-subtle);
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--blue);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
+        /* Partition Switch Bar */
+        .partition-switch-bar {
+            display: flex;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-subtle);
+            position: sticky;
+            top: 59px;
+            z-index: 38;
+        }
+        .partition-tab-btn {
+            flex: 1;
+            padding: 11px;
+            font-size: 13.5px;
+            font-weight: 800;
+            text-align: center;
+            color: var(--text-muted);
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        .partition-tab-btn.active { color: var(--text-main); }
+        .partition-tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 20%;
+            right: 20%;
+            height: 3px;
+            background: var(--primary-accent);
+            border-radius: 3px;
+        }
+
+        /* Retail vs Wholesale Filter Bar */
+        .sub-type-filter-strip {
+            display: flex;
+            gap: 8px;
+            padding: 10px 16px;
+            background: var(--bg-page);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .sub-type-chip {
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 11.5px;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1px solid var(--border-subtle);
+            background: var(--badge-bg);
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+        .sub-type-chip.active {
+            background: var(--primary-accent);
+            color: var(--accent-contrast);
+            border-color: var(--primary-accent);
+        }
+
+        /* Horizontal Category Tray */
+        .tray-section {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 10px 0;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .tray-header {
+            padding: 0 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .tray-title { font-size: 11.5px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .category-scroll-strip {
+            display: flex;
+            gap: 10px;
+            padding: 4px 16px 6px 16px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+        }
+        .category-scroll-strip::-webkit-scrollbar { display: none; }
+
+        .cat-item-card {
+            flex-shrink: 0;
+            width: 80px;
+            border-radius: 16px;
+            padding: 10px 4px 8px 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            border: 1.5px solid transparent;
+        }
+        .cat-item-card:active { transform: scale(0.93); }
+        .cat-item-card.selected {
+            border-color: var(--blue) !important;
+            box-shadow: 0 4px 12px rgba(37,99,235,0.25);
+            transform: translateY(-2px);
+        }
+        .cat-avatar-img {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            object-fit: cover;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+        }
+        .cat-label-text {
+            font-size: 10.5px;
+            font-weight: 800;
+            line-height: 1.2;
+            max-width: 74px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Post Card Feed */
+        .feed-container {
+            display: flex;
+            flex-direction: column;
+            background: var(--divider);
+            gap: 8px;
+        }
+        .feed-post-card {
+            background: var(--bg-card);
+            display: flex;
+            flex-direction: column;
+            padding: 12px 0 6px 0;
+        }
+        .feed-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px 8px 16px;
+        }
+        .post-author-box { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .post-author-dp {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .post-author-name { font-size: 13.5px; font-weight: 800; display: flex; align-items: center; gap: 4px; }
+        .post-author-sub { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+
+        .uid-badge-pill {
+            background: var(--badge-bg);
+            border: 1px solid var(--border-subtle);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 10.5px;
+            font-weight: 800;
+            cursor: pointer;
+            color: var(--text-main);
+        }
+
+        .post-content-pad {
+            padding: 0 16px 8px 16px;
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--text-main);
+        }
+
+        .post-media-box {
+            width: 100%;
+            background: #000;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .post-img {
+            width: 100%;
+            max-height: 75vh;
+            object-fit: contain;
+            display: block;
+        }
+
+        .post-specs-strip {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 8px 16px 4px 16px;
+        }
+        .post-chip {
+            background: var(--badge-bg);
+            color: var(--blue);
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            border: 1px solid var(--border-subtle);
+        }
+
+        /* Compact Contacts & Actions Dock */
+        .post-actions-hub {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 16px;
+            gap: 8px;
+        }
+        .contact-btn-group { display: flex; align-items: center; gap: 8px; }
+        .icon-circle-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: 1px solid var(--border-subtle);
+            background: var(--badge-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: transform 0.15s;
+            font-size: 15px;
+        }
+        .icon-circle-btn:active { transform: scale(0.92); }
+        .btn-call { background: #EFF6FF; border-color: #DBEAFE; color: var(--blue); }
+        .btn-wa { background: #ECFDF5; border-color: #D1FAE5; color: #059669; }
+        .btn-map { background: var(--badge-bg); border-color: var(--border-subtle); color: var(--text-main); }
+
+        .profile-link-btn {
+            padding: 8px 12px;
+            background: var(--badge-bg);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+
+        /* Social Engagement Row */
+        .post-social-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 16px 4px 16px;
+            border-top: 1px solid var(--border-subtle);
+        }
+        .social-left-actions { display: flex; align-items: center; gap: 14px; }
+        .social-action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-main);
+            padding: 4px 0;
+        }
+        .social-svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .social-svg.liked { fill: var(--red); stroke: var(--red); }
+
+        .floating-create-action-btn {
+            position: fixed;
+            bottom: 72px;
+            right: 16px;
+            background: var(--primary-accent);
+            color: var(--accent-contrast);
+            border: none;
+            padding: 11px 18px;
+            border-radius: 26px;
+            font-size: 12.5px;
+            font-weight: 800;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.22);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            z-index: 45;
+        }
+
+        /* Sidebar Cluster Drawer */
+        .cluster-drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; display: none; }
+        .cluster-drawer {
+            position: fixed; top: 0; left: -290px; width: 285px; height: 100%; background: var(--bg-card);
+            z-index: 101; transition: left 0.25s ease; display: flex; flex-direction: column; padding: 16px;
+            overflow-y: auto;
+        }
+        .cluster-drawer.open { left: 0; }
+        .sidebar-profile-card {
+            background: var(--sidebar-card-grad); color: #FFFFFF; border-radius: 14px; padding: 14px;
+            margin-bottom: 12px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .sidebar-card-top { display: flex; align-items: center; gap: 10px; }
+        .sidebar-dp-img { width: 44px; height: 44px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.4); object-fit: cover; }
+        .sidebar-view-btn {
+            font-size: 11px; font-weight: 700; color: #FFFFFF; text-decoration: none;
+            background: rgba(255,255,255,0.15); padding: 6px 10px; border-radius: 8px;
+            text-align: center; display: flex; align-items: center; justify-content: center; gap: 4px;
+        }
+        .sidebar-biz-row {
+            padding: 12px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer;
+            color: var(--primary-accent); background: rgba(37, 99, 235, 0.08); display: flex;
+            align-items: center; gap: 10px; margin-bottom: 8px; border: 1.5px solid rgba(37, 99, 235, 0.25);
+            transition: all 0.2s ease;
+        }
+        .drawer-list { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+        .drawer-link {
+            padding: 12px 10px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;
+            color: var(--text-main); text-decoration: none; display: flex; align-items: center; justify-content: space-between;
+        }
+        .drawer-link:active { background: var(--badge-bg); }
+        .drawer-link.logout-btn { color: var(--red); margin-top: auto; border-top: 1px solid var(--border-subtle); }
+        .theme-inline-btn { width: 32px; height: 18px; border-radius: 10px; border: 1.5px solid var(--border-subtle); background: var(--bg-page); position: relative; cursor: pointer; }
+        .theme-inline-knob { width: 12px; height: 12px; border-radius: 50%; background: var(--text-main); position: absolute; top: 1.5px; left: 2px; transition: transform 0.2s; }
+        body.dark-mode .theme-inline-knob { transform: translateX(12px); background: #fff; }
+
+        /* Modals & Sheets */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: flex-end; justify-content: center; z-index: 120; backdrop-filter: blur(2px); }
+        .modal-overlay.center-box { align-items: center; }
+        .modal-sheet { width: 100%; max-width: 440px; background: var(--bg-card); border-radius: 20px 20px 0 0; padding: 20px; max-height: 88vh; overflow-y: auto; }
+        .sheet-title { font-size: 15px; font-weight: 800; margin-bottom: 14px; }
+        .modal-input { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border-subtle); margin-bottom: 10px; background: var(--bg-page); color: var(--text-main); font-size: 13px; outline: none; }
+        .modal-btn { width: 100%; padding: 11px; background: var(--primary-accent); color: var(--accent-contrast); border: none; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; margin-top: 6px; }
+        .modal-btn.sub { background: var(--badge-bg); color: var(--text-main); margin-top: 8px; border: 1px solid var(--border-subtle); }
+
+        .tap-location-btn {
+            width: 100%; padding: 10px 12px; border-radius: 10px;
+            border: 1px dashed var(--blue); background: #EFF6FF;
+            color: var(--blue); font-size: 12px; font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+            gap: 6px; cursor: pointer; margin-bottom: 12px;
+        }
+        body.dark-mode .tap-location-btn { background: #1E293B; }
+
+        .photo-upload-box {
+            border: 1.5px dashed var(--border-subtle);
+            border-radius: 12px;
+            padding: 14px;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 10px;
+            background: var(--badge-bg);
+        }
+        .photo-preview {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+            display: none;
+            margin-top: 8px;
+        }
+
+        .profile-full-overlay {
+            position: fixed; inset: 0; background: var(--bg-card);
+            z-index: 260; display: none; flex-direction: column; overflow-y: auto;
+        }
+        .profile-header-bar {
+            position: sticky; top: 0; background: var(--bg-card);
+            padding: 12px 16px; display: flex; justify-content: space-between;
+            align-items: center; border-bottom: 1px solid var(--border-subtle); z-index: 10;
+        }
+        .profile-hero {
+            position: relative; width: 100%; height: 160px;
+            background: #18181B; margin-bottom: 44px;
+        }
+        .profile-cover-img { width: 100%; height: 100%; object-fit: cover; }
+        .profile-avatar-floating {
+            position: absolute; bottom: -34px; left: 16px; width: 72px; height: 72px;
+            border-radius: 18px; border: 3px solid var(--bg-card); object-fit: cover;
+            background: #fff;
+        }
+
+        .all-cats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            padding: 6px 0;
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+            width: 100%; max-width: 440px; background: var(--bg-card);
+            border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-around;
+            padding: 8px 0; z-index: 40;
+        }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center; color: var(--text-muted);
+            font-size: 10px; font-weight: 700; cursor: pointer; text-decoration: none; position: relative; gap: 3px;
+        }
+        .nav-item.active { color: var(--text-main); }
+        .chat-red-dot {
+            position: absolute; top: -1px; right: 8px; width: 7px; height: 7px;
+            background: var(--red); border-radius: 50%; display: none;
+        }
+
+        .app-toast-bar {
+            position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%) translateY(30px);
+            background: #18181B; color: #fff; border: 1px solid rgba(255,255,255,0.2);
+            padding: 10px 20px; border-radius: 24px; font-size: 12px; font-weight: 700;
+            display: flex; align-items: center; gap: 8px; z-index: 400; opacity: 0;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        }
+        .app-toast-bar.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+    <div class="app-toast-bar" id="appToastBar">
+        <span>✨</span>
+        <span id="toastMessageText">Notification</span>
+    </div>
+
+    <div class="app-shell">
+
+        <!-- Top Header -->
+        <header class="top-nav">
+            <div class="brand-cluster-wrap">
+                <button class="cluster-btn" onclick="openClusterDrawer()" title="Menu">
+                    <div class="cluster-grid-icon">
+                        <div class="cluster-rect"></div>
+                        <div class="cluster-rect"></div>
+                        <div class="cluster-rect"></div>
+                        <div class="cluster-rect"></div>
+                    </div>
+                </button>
+                <span class="brand-logo-txt">POST</span>
+            </div>
+
+            <div class="top-right-tools">
+                <div class="search-container">
+                    <div class="search-box">
+                        <input type="text" class="search-input" id="universalSearchInput" placeholder="Search @user, #pin..." oninput="handleUniversalSearch(this.value)" onkeydown="if(event.key==='Enter') executeSearch()">
+                        <button class="search-lens-btn" onclick="executeSearch()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        </button>
+                    </div>
+                    <div class="search-hints-pop" id="searchHintsPop"></div>
+                </div>
+
+                <div class="loc-badge-btn" onclick="openLocationPickerModal()">
+                    <span>📍</span> <span id="currentPincodeLabel">209868</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- 2-Partition Switch: Shops vs Services -->
+        <div class="partition-switch-bar">
+            <button class="partition-tab-btn active" id="tabShopsBtn" onclick="switchMarketPartition('shops')">Shops</button>
+            <button class="partition-tab-btn" id="tabServicesBtn" onclick="switchMarketPartition('services')">Services</button>
+        </div>
+
+        <!-- Sub Filter (Retail vs Wholesale) - Active under Shops -->
+        <div class="sub-type-filter-strip" id="shopTypeFilterStrip">
+            <button class="sub-type-chip active" onclick="filterShopSubtype(this, 'all')">All Shops</button>
+            <button class="sub-type-chip" onclick="filterShopSubtype(this, 'retail')">Retail</button>
+            <button class="sub-type-chip" onclick="filterShopSubtype(this, 'wholesale')">Wholesale</button>
+        </div>
+
+        <!-- Horizontal 3D Avatar Category Tray -->
+        <div class="tray-section">
+            <div class="tray-header">
+                <span class="tray-title" id="trayTitleLabel">Shops Categories</span>
+                <span style="font-size:11.5px; font-weight:800; color:var(--blue); cursor:pointer;" onclick="openShowAllModal()">Show All ▾</span>
+            </div>
+            <div class="category-scroll-strip" id="categoryTrayDock"></div>
+        </div>
+
+        <!-- Feeds Container -->
+        <div class="feed-container" id="feedContainerDock"></div>
+
+        <!-- Floating Create Business Button -->
+        <button type="button" class="floating-create-action-btn" onclick="openSmartBusinessModal()">
+            <span>➕</span> <span id="fabLabel">Create Shop</span>
+        </button>
+
+        <!-- Bottom Fixed Navigation -->
+        <nav class="bottom-nav">
+            <a href="home.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                <span>Home</span>
+            </a>
+            <a href="chat.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                <span>Chat</span>
+                <div class="chat-red-dot" id="chatNavRedDot"></div>
+            </a>
+            <a href="market.html" class="nav-item active">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+                <span>Market</span>
+            </a>
+            <a href="area.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                <span>Area</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                <span>Profile</span>
+            </a>
+        </nav>
+
+    </div>
+
+    <!-- SIDEBAR DRAWER -->
+    <div class="cluster-drawer-overlay" id="clusterDrawerOverlay" onclick="closeClusterDrawer()"></div>
+    <div class="cluster-drawer" id="clusterDrawer">
+        <div class="sidebar-profile-card">
+            <div class="sidebar-card-top">
+                <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100" class="sidebar-dp-img" id="sidebarDpImg">
+                <div>
+                    <div style="font-size:14px; font-weight:800;" id="sidebarNameText">Aarav Sharma</div>
+                    <div style="font-size:11px; opacity:0.8;" id="sidebarHandleText">@aarav_sharma</div>
+                </div>
+            </div>
+            <a href="profile.html" class="sidebar-view-btn"><span>View Profile</span> &#8594;</a>
+        </div>
+
+        <div class="sidebar-biz-row" onclick="closeClusterDrawer()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+            <span>My Business</span>
+        </div>
+
+        <div class="drawer-list">
+            <div class="drawer-link" onclick="closeClusterDrawer(); openSmartBusinessModal()">Create Shop / Service</div>
+            <div class="drawer-link" onclick="window.location.href='area.html'">Area Channel</div>
+            <div class="drawer-link" onclick="toggleThemeInline()">
+                <span>Theme Mode</span>
+                <div class="theme-inline-btn"><div class="theme-inline-knob"></div></div>
+            </div>
+            <div class="drawer-link logout-btn" onclick="alert('Logged out');">Log Out</div>
+        </div>
+    </div>
+
+    <!-- SHOW ALL CATEGORIES MODAL -->
+    <div class="modal-overlay" id="showAllModal">
+        <div class="modal-sheet">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <div class="sheet-title" id="showAllTitle" style="margin-bottom:0;">All Categories</div>
+                <button onclick="closeModal('showAllModal')" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
+            </div>
+            <button class="modal-btn sub" style="margin-top:0; margin-bottom:12px;" onclick="selectCategory(null); closeModal('showAllModal');">Show All (Reset Filter)</button>
+            <div class="all-cats-grid" id="allCatsGridDock"></div>
+        </div>
+    </div>
+
+    <!-- BUSINESS REGISTRATION MODAL -->
+    <div class="modal-overlay" id="businessRegistrationModal">
+        <div class="modal-sheet">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <div class="sheet-title" style="margin-bottom:0;">Register Business / Service</div>
+                <button onclick="closeModal('businessRegistrationModal')" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
+            </div>
+
+            <label style="font-size:11px; font-weight:700; color:var(--text-muted); margin-bottom:4px; display:block;">Select Category:</label>
+            <select id="formCategorySelect" class="modal-input" onchange="renderDynamicFormFields(this.value)"></select>
+
+            <div id="shopSubTypeSelectRow" style="display:none; margin-bottom:10px;">
+                <label style="font-size:11px; font-weight:700; color:var(--text-muted); margin-bottom:4px; display:block;">Operation Type:</label>
+                <select id="formShopSubtype" class="modal-input" style="margin-bottom:0;">
+                    <option value="retail">Retail Only</option>
+                    <option value="wholesale">Wholesale Only</option>
+                    <option value="both">Both Retail & Wholesale</option>
+                </select>
+            </div>
+
+            <div id="dynamicFormFieldsContainer"></div>
+
+            <label style="font-size:11px; font-weight:700; color:var(--text-muted); margin-bottom:4px; display:block;">Store Banner / Photo:</label>
+            <div class="photo-upload-box" onclick="document.getElementById('fileUploadInput').click()">
+                <div style="font-size:20px;">📷</div>
+                <div style="font-size:11px; font-weight:700; color:var(--blue); margin-top:2px;">Tap to Take Photo or Upload</div>
+                <input type="file" id="fileUploadInput" accept="image/*" style="display:none;" onchange="handleImageSelection(this)">
+                <img id="uploadImagePreview" class="photo-preview">
+            </div>
+
+            <button type="button" class="tap-location-btn" onclick="captureLiveLocation()">
+                <span>📍</span> <span id="tapLocationStatusText">Tap to Tag GPS Location</span>
+            </button>
+            <input type="hidden" id="capturedCoords" value="">
+
+            <button type="button" class="modal-btn" onclick="submitBusinessRegistration()">Publish to Market 🚀</button>
+        </div>
+    </div>
+
+    <!-- FULL EDGE-TO-EDGE PROFILE VIEWER -->
+    <div class="profile-full-overlay" id="profileViewerModal">
+        <div class="profile-header-bar">
+            <b style="font-size:14px;" id="viewerProfileTitle">Profile</b>
+            <button onclick="closeProfileViewer()" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
+        </div>
+        <div class="profile-hero">
+            <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800" class="profile-cover-img">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120" class="profile-avatar-floating" id="viewerDpImg">
+        </div>
+        <div style="padding:0 16px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                <div>
+                    <h3 style="font-size:18px; font-weight:900;" id="viewerName">Business Name</h3>
+                    <div style="font-size:11.5px; font-weight:800; color:var(--blue); margin-top:2px;" id="viewerBadge">Verified Service</div>
+                </div>
+                <span class="uid-badge-pill" id="viewerUidPill" onclick="copyViewerUID()">📋 Copy UID</span>
+            </div>
+            <p style="font-size:12px; color:var(--text-muted); margin-top:6px;" id="viewerAddress">Address</p>
+            
+            <div style="background:var(--badge-bg); border:1px solid var(--border-subtle); border-radius:12px; padding:10px 12px; margin:12px 0;">
+                <div style="font-size:11.5px; font-weight:800; color:var(--red);">🔥 Highlighted Offer & Description:</div>
+                <div style="font-size:12px; margin-top:4px;" id="viewerBioText">Top quality genuine local service. Contact directly!</div>
+            </div>
+
+            <div style="display:flex; gap:8px; margin-bottom:14px;">
+                <a href="tel:" id="viewerCallLink" class="icon-circle-btn btn-call" style="flex:1; border-radius:12px; height:42px; font-size:13px; font-weight:800;">📞 Call Direct</a>
+                <a href="https://wa.me/" id="viewerWaLink" class="icon-circle-btn btn-wa" style="flex:1; border-radius:12px; height:42px; font-size:13px; font-weight:800;">🟢 WhatsApp</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOCATION PICKER MODAL -->
+    <div class="modal-overlay" id="locationPickerModal">
+        <div class="modal-sheet">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <div class="sheet-title" style="margin-bottom:0;">Choose Location</div>
+                <button onclick="closeModal('locationPickerModal')" style="background:none; border:none; font-size:22px; cursor:pointer;">&times;</button>
+            </div>
+            <div id="locationPickerModalList" style="display:flex; flex-direction:column; gap:8px;"></div>
+        </div>
+    </div>
+
+    <script>
+        const SHOP_CATEGORIES = [
+            { id: "grocery", label: "Kirana Store", avatar: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=100", bg: "#FEF3C7", text: "#92400E" },
+            { id: "clothing", label: "Cloth & Saree", avatar: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=100", bg: "#FCE7F3", text: "#9D174D" },
+            { id: "pharmacy", label: "Medical Store", avatar: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=100", bg: "#D1FAE5", text: "#065F46" },
+            { id: "electronics", label: "Mobile & Electro", avatar: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100", bg: "#E0E7FF", text: "#3730A3" },
+            { id: "jewellery", label: "Jewellery & Bangles", avatar: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=100", bg: "#FEF9C3", text: "#854D0E" },
+            { id: "hardware", label: "Hardware & Paint", avatar: "https://images.unsplash.com/photo-1581244277943-fe4a9c777189?w=100", bg: "#FFEDD5", text: "#9A3412" },
+            { id: "sweets", label: "Sweets & Bakery", avatar: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=100", bg: "#FEE2E2", text: "#991B1B" },
+            { id: "footwear", label: "Footwear Shoes", avatar: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=100", bg: "#E2E8F0", text: "#334155" },
+            { id: "stationery", label: "Books & Toys", avatar: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=100", bg: "#CCFBF1", text: "#115E59" }
+        ];
+
+        const SERVICE_CATEGORIES = [
+            { id: "doctor", label: "Doctor & Clinic", avatar: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=100", bg: "#E0F2FE", text: "#0369A1" },
+            { id: "advocate", label: "Advocate / Lawyer", avatar: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=100", bg: "#F1F5F9", text: "#0F172A" },
+            { id: "teacher", label: "Teacher & Tuition", avatar: "https://images.unsplash.com/photo-1577896851231-70ef18881754?w=100", bg: "#FEF3C7", text: "#B45309" },
+            { id: "jobs", label: "Jobs & Hiring", avatar: "https://images.unsplash.com/photo-1521791136064-7986c2920216?w=100", bg: "#DCFCE7", text: "#166534" },
+            { id: "puncture", label: "Tyre & Puncture", avatar: "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=100", bg: "#FFEDD5", text: "#C2410C" },
+            { id: "electrician", label: "Electrician", avatar: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=100", bg: "#FEF9C3", text: "#A16207" },
+            { id: "plumber", label: "Plumber Mistri", avatar: "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=100", bg: "#DBEAFE", text: "#1D4ED8" },
+            { id: "mechanic", label: "Auto Mechanic", avatar: "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=100", bg: "#E2E8F0", text: "#1E293B" },
+            { id: "ca", label: "CA & Tax Advisor", avatar: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=100", bg: "#EDE9FE", text: "#6D28D9" },
+            { id: "salon", label: "Salon & Beauty", avatar: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=100", bg: "#FCE7F3", text: "#BE185D" }
+        ];
+
+        const DEFAULT_CHANNELS = [
+            { pin: "209868", name: "Bangarmau", active: true },
+            { pin: "209871", name: "Safipur", active: true },
+            { pin: "209869", name: "Ganj Muradabad", active: true }
+        ];
+
+        function getGlobalChannels() {
+            return JSON.parse(localStorage.getItem('post_global_channels')) || DEFAULT_CHANNELS;
+        }
+
+        function saveGlobalChannel(pin, name) {
+            let channels = getGlobalChannels();
+            if (!channels.some(c => c.pin === pin)) {
+                channels.push({ pin: pin, name: name, active: true });
+                localStorage.setItem('post_global_channels', JSON.stringify(channels));
+            }
+        }
+
+        let currentPartition = 'shops';
+        let currentShopSubtype = 'all';
+        let activeCategoryFilter = null;
+        let activeTown = "Bangarmau";
+        let activePin = "209868";
+        let currentViewingProfile = null;
+        let selectedImageDataUrl = "";
+
+        let listings = JSON.parse(localStorage.getItem('post_market_listings')) || [
+            {
+                id: "m_1",
+                partition: "shops",
+                subType: "retail",
+                categoryId: "clothing",
+                categoryLabel: "Cloth & Saree",
+                title: "Gupta Saree Niketan",
+                owner: "Radhe Shyam Gupta",
+                phone: "9876543210",
+                area: "Katra Bazar",
+                pin: "209868",
+                town: "Bangarmau",
+                coords: "26.9056,80.2081",
+                uid: "2098681021",
+                bio: "🔥 Festive Wedding Offer: Flat 25% discount on Banarasi Sarees and Lehengas. Visit us today!",
+                media: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800",
+                dp: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120",
+                specs: ["Retail Saree Center", "Bridal Wear", "Katra Bazar"],
+                likes: 124,
+                liked: false,
+                commentsCount: 8
+            },
+            {
+                id: "m_2",
+                partition: "shops",
+                subType: "wholesale",
+                categoryId: "grocery",
+                categoryLabel: "Kirana Store",
+                title: "Balaji Mega Agency",
+                owner: "Balaji Distributors",
+                phone: "9876543201",
+                area: "Industrial Area",
+                pin: "209868",
+                town: "Bangarmau",
+                coords: "26.9040,80.2090",
+                uid: "2098681090",
+                bio: "📦 Wholesale Agency Rates available for spices, grains, and packaged food products for all retail stores.",
+                media: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=800",
+                dp: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120",
+                specs: ["Wholesale Stockist", "Bulk Supply", "Door Delivery"],
+                likes: 88,
+                liked: false,
+                commentsCount: 4
+            },
+            {
+                id: "m_3",
+                partition: "services",
+                subType: "none",
+                categoryId: "jobs",
+                categoryLabel: "Jobs & Hiring",
+                title: "Shree Krishna Mills & Packaging",
+                owner: "Vikram Singh (HR)",
+                phone: "9876541122",
+                area: "Ganj Muradabad Road",
+                pin: "209868",
+                town: "Bangarmau",
+                coords: "26.9110,80.2020",
+                uid: "2098681088",
+                bio: "👔 URGENT HIRING: Required 4 Delivery Boys & 2 Packaging Operators. Salary ₹10,000 - ₹14,000 + Incentive. Contact immediately!",
+                media: "https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800",
+                dp: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120",
+                specs: ["Full Time", "Delivery / Packaging", "Immediate Joining"],
+                likes: 45,
+                liked: false,
+                commentsCount: 12
+            }
+        ];
+
+        window.addEventListener('load', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const p = urlParams.get('pin');
+            const n = urlParams.get('name');
+            if (p) activePin = p;
+            if (n) activeTown = decodeURIComponent(n);
+
+            document.getElementById('currentPincodeLabel').textContent = activePin;
+            renderCategoryTray();
+            renderFeedListings();
+            renderLocationPickerList();
+        });
+
+        function renderLocationPickerList() {
+            const container = document.getElementById('locationPickerModalList');
+            const channels = getGlobalChannels();
+            container.innerHTML = channels.map(c => `
+                <div style="padding:12px; background:var(--badge-bg); border-radius:12px; cursor:pointer; font-size:13px; font-weight:700;" onclick="setTownLocation('${c.name}', '${c.pin}')">
+                    📍 ${c.name} (${c.pin})
+                </div>
+            `).join('');
+        }
+
+        function switchMarketPartition(type) {
+            currentPartition = type;
+            activeCategoryFilter = null;
+
+            document.getElementById('tabShopsBtn').classList.toggle('active', type === 'shops');
+            document.getElementById('tabServicesBtn').classList.toggle('active', type === 'services');
+            document.getElementById('shopTypeFilterStrip').style.display = (type === 'shops') ? 'flex' : 'none';
+            document.getElementById('trayTitleLabel').textContent = (type === 'shops') ? 'Shops Categories' : 'Services Categories';
+            document.getElementById('fabLabel').textContent = (type === 'shops') ? 'Create Shop' : 'Register Service';
+
+            renderCategoryTray();
+            renderFeedListings();
+        }
+
+        function filterShopSubtype(chip, subtype) {
+            document.querySelectorAll('.sub-type-chip').forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            currentShopSubtype = subtype;
+            renderFeedListings();
+        }
+
+        function renderCategoryTray() {
+            const dock = document.getElementById('categoryTrayDock');
+            const catList = (currentPartition === 'shops') ? SHOP_CATEGORIES : SERVICE_CATEGORIES;
+
+            dock.innerHTML = catList.map(cat => `
+                <div class="cat-item-card ${activeCategoryFilter === cat.id ? 'selected' : ''}" 
+                     style="background:${cat.bg}; color:${cat.text};" 
+                     onclick="selectCategory('${cat.id}')">
+                    <img src="${cat.avatar}" class="cat-avatar-img">
+                    <div class="cat-label-text">${cat.label}</div>
+                </div>
+            `).join('');
+        }
+
+        function selectCategory(catId) {
+            activeCategoryFilter = (activeCategoryFilter === catId) ? null : catId;
+            renderCategoryTray();
+            renderFeedListings();
+            showAppToast(activeCategoryFilter ? `Filtering: ${catId} ✨` : "Showing all listings");
+        }
+
+        function openShowAllModal() {
+            const catList = (currentPartition === 'shops') ? SHOP_CATEGORIES : SERVICE_CATEGORIES;
+            document.getElementById('showAllTitle').textContent = (currentPartition === 'shops') ? 'All Shop Categories' : 'All Service Categories';
+            
+            const grid = document.getElementById('allCatsGridDock');
+            grid.innerHTML = catList.map(cat => `
+                <div class="cat-item-card ${activeCategoryFilter === cat.id ? 'selected' : ''}" 
+                     style="background:${cat.bg}; color:${cat.text}; width:100%;" 
+                     onclick="selectCategory('${cat.id}'); closeModal('showAllModal');">
+                    <img src="${cat.avatar}" class="cat-avatar-img">
+                    <div class="cat-label-text">${cat.label}</div>
+                </div>
+            `).join('');
+            openModal('showAllModal');
+        }
+
+        function renderFeedListings() {
+            const dock = document.getElementById('feedContainerDock');
+            const searchVal = document.getElementById('universalSearchInput').value.toLowerCase().trim();
+
+            let filtered = listings.filter(item => {
+                const matchesPartition = (item.partition === currentPartition);
+                const matchesPin = (item.pin === activePin);
+                const matchesCat = activeCategoryFilter ? (item.categoryId === activeCategoryFilter) : true;
+
+                let matchesSubtype = true;
+                if (currentPartition === 'shops' && currentShopSubtype !== 'all') {
+                    matchesSubtype = (item.subType === currentShopSubtype || item.subType === 'both');
+                }
+
+                let matchesSearch = true;
+                if (searchVal) {
+                    const q = searchVal.replace('@', '').replace('#', '').trim();
+                    matchesSearch = item.title.toLowerCase().includes(q) ||
+                                    item.categoryLabel.toLowerCase().includes(q) ||
+                                    item.area.toLowerCase().includes(q) ||
+                                    item.uid.includes(q) ||
+                                    item.bio.toLowerCase().includes(q);
+                }
+                return matchesPartition && matchesPin && matchesCat && matchesSubtype && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                dock.innerHTML = `
+                    <div style="text-align:center; padding:36px 16px; background:var(--bg-card); border-radius:16px; margin:0 16px; border:1px solid var(--border-subtle);">
+                        <div style="font-size:28px; margin-bottom:8px;">📍</div>
+                        <div style="font-size:14px; font-weight:800;">No Listings in ${activeTown} (${activePin})</div>
+                        <div style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">Be the first to register a business here!</div>
+                        <button type="button" class="modal-btn" style="margin-top:12px; width:auto; padding:8px 18px;" onclick="openSmartBusinessModal()">Create Business</button>
+                    </div>
+                `;
+                return;
+            }
+
+            dock.innerHTML = filtered.map(item => `
+                <article class="feed-post-card">
+                    <div class="feed-card-header">
+                        <div class="post-author-box" onclick="openProfileByUid('${item.uid}')">
+                            <img src="${item.dp || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'}" class="post-author-dp">
+                            <div>
+                                <div class="post-author-name">
+                                    ${item.title} 
+                                    <span style="color:#10B981; font-size:11px;">🛡️</span>
+                                </div>
+                                <div class="post-author-sub">
+                                    <span>${item.categoryLabel} ${item.subType && item.subType !== 'none' ? `(${item.subType.toUpperCase()})` : ''} • ${item.area}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="uid-badge-pill" onclick="copyUID('${item.uid}')">📋 ${item.uid}</span>
+                    </div>
+
+                    <div class="post-content-pad">${item.bio}</div>
+
+                    <div class="post-specs-strip">
+                        ${(item.specs || []).map(s => `<span class="post-chip">✓ ${s}</span>`).join('')}
+                    </div>
+
+                    ${item.media ? `
+                        <div class="post-media-box" onclick="openProfileByUid('${item.uid}')">
+                            <img src="${item.media}" class="post-img" onerror="this.style.display='none'">
+                        </div>
+                    ` : ''}
+
+                    <div class="post-actions-hub">
+                        <div class="contact-btn-group">
+                            <a href="tel:${item.phone}" class="icon-circle-btn btn-call" title="Call">📞</a>
+                            <a href="https://wa.me/91${item.phone}?text=Hello%20${encodeURIComponent(item.title)},%20I%20found%20you%20on%20POST." class="icon-circle-btn btn-wa" title="WhatsApp">🟢</a>
+                            ${item.coords ? `<a href="https://www.google.com/maps/search/?api=1&query=${item.coords}" target="_blank" class="icon-circle-btn btn-map" title="Map Directions">📍</a>` : ''}
+                        </div>
+                        <button type="button" class="profile-link-btn" onclick="openProfileByUid('${item.uid}')">View Profile &rarr;</button>
+                    </div>
+
+                    <div class="post-social-bar">
+                        <div class="social-left-actions">
+                            <button type="button" class="social-action-btn" onclick="toggleFeedLike('${item.id}')">
+                                <svg class="social-svg ${item.liked ? 'liked' : ''}" viewBox="0 0 24 24">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                </svg>
+                                <span>${item.likes || 0}</span>
+                            </button>
+                            <button type="button" class="social-action-btn" onclick="alert('Reviews and Comments')">
+                                <span style="font-weight:800; font-size:11.5px; color:var(--text-muted);">COMMENT</span>
+                                <span style="font-size:11px; color:var(--text-muted);">(${item.commentsCount || 0})</span>
+                            </button>
+                        </div>
+                        <button type="button" class="social-action-btn" onclick="sharePost('${item.uid}')">
+                            <svg class="social-svg" viewBox="0 0 24 24" style="transform: rotate(45deg); margin-bottom:2px;">
+                                <path d="M22 2L11 13"></path>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                            </svg>
+                            <span>Share</span>
+                        </button>
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        function toggleFeedLike(id) {
+            const item = listings.find(x => x.id === id);
+            if (!item) return;
+            item.liked = !item.liked;
+            item.likes += item.liked ? 1 : -1;
+            localStorage.setItem('post_market_listings', JSON.stringify(listings));
+            renderFeedListings();
+        }
+
+        function sharePost(uid) {
+            const shareUrl = `${window.location.origin}/market.html?uid=${uid}`;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(shareUrl);
+                showAppToast(`Post link copied: UID ${uid} ✈️`);
+            }
+        }
+
+        function openSmartBusinessModal() {
+            const select = document.getElementById('formCategorySelect');
+            const list = (currentPartition === 'shops') ? SHOP_CATEGORIES : SERVICE_CATEGORIES;
+
+            select.innerHTML = list.map(c => `<option value="${c.id}">${c.label}</option>`).join('');
+            if (activeCategoryFilter) select.value = activeCategoryFilter;
+
+            selectedImageDataUrl = "";
+            const preview = document.getElementById('uploadImagePreview');
+            preview.src = "";
+            preview.style.display = "none";
+
+            document.getElementById('shopSubTypeSelectRow').style.display = (currentPartition === 'shops') ? 'block' : 'none';
+
+            renderDynamicFormFields(select.value);
+            openModal('businessRegistrationModal');
+        }
+
+        function renderDynamicFormFields(catId) {
+            const container = document.getElementById('dynamicFormFieldsContainer');
+            let specific = '';
+
+            if (catId === 'jobs') {
+                specific = `
+                    <input type="text" id="customF1" class="modal-input" placeholder="Role Vacancy (e.g. Delivery Boy, Operator)">
+                    <input type="text" id="customF2" class="modal-input" placeholder="Salary Offered (e.g. ₹12,000 / month)">
+                    <input type="text" id="customF3" class="modal-input" placeholder="Work Shift & Hours (e.g. 9 AM - 6 PM)">
+                `;
+            } else if (catId === 'doctor') {
+                specific = `
+                    <input type="text" id="customF1" class="modal-input" placeholder="Qualification (e.g. MBBS, MD, BAMS)">
+                    <input type="text" id="customF2" class="modal-input" placeholder="Speciality (e.g. General Physician, Child)">
+                    <input type="text" id="customF3" class="modal-input" placeholder="OPD Timings (e.g. 10 AM to 2 PM)">
+                `;
+            } else if (catId === 'advocate') {
+                specific = `
+                    <input type="text" id="customF1" class="modal-input" placeholder="Bar Council Enrolment No">
+                    <input type="text" id="customF2" class="modal-input" placeholder="Practice (Civil, Criminal, Revenue)">
+                    <input type="text" id="customF3" class="modal-input" placeholder="Chamber Address & Timings">
+                `;
+            } else if (catId === 'teacher') {
+                specific = `
+                    <input type="text" id="customF1" class="modal-input" placeholder="Subjects (e.g. Math, Physics)">
+                    <input type="text" id="customF2" class="modal-input" placeholder="Class Levels (e.g. 8th to 12th)">
+                    <input type="text" id="customF3" class="modal-input" placeholder="Tuition Mode (Home / Coaching)">
+                `;
+            } else if (currentPartition === 'shops') {
+                specific = `
+                    <input type="text" id="customF1" class="modal-input" placeholder="Speciality (e.g. Banarasi Sarees, Fancy)">
+                    <input type="text" id="customF2" class="modal-input" placeholder="Running Discount / Festival Offer">
+                    <input type="text" id="customF3" class="modal-input" placeholder="Home Delivery Available? (Yes/No)">
+                `;
+            } else {
+                specific = `
+                    <input type="text" id="customF1" class="modal-input" placeholder="Key Skills / Experience">
+                    <input type="text" id="customF2" class="modal-input" placeholder="Doorstep Service? (Yes/No)">
+                    <input type="text" id="customF3" class="modal-input" placeholder="Emergency Availability (e.g. 24x7)">
+                `;
+            }
+
+            container.innerHTML = `
+                <input type="text" id="formBusinessTitle" class="modal-input" placeholder="Business / Clinic / Shop Name">
+                <input type="text" id="formOwnerName" class="modal-input" placeholder="Contact Person Full Name">
+                <input type="tel" id="formPhone" class="modal-input" placeholder="Mobile / WhatsApp Number">
+                <input type="text" id="formArea" class="modal-input" placeholder="Mohalla / Area / Chauraha">
+                <input type="number" id="formPin" class="modal-input" placeholder="6-digit Pincode" value="${activePin}">
+                ${specific}
+                <textarea id="formBio" class="modal-input" style="min-height:55px; resize:none;" placeholder="Write description or offer details..."></textarea>
+            `;
+        }
+
+        function handleImageSelection(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    selectedImageDataUrl = e.target.result;
+                    const preview = document.getElementById('uploadImagePreview');
+                    preview.src = selectedImageDataUrl;
+                    preview.style.display = 'block';
+                    showAppToast("Photo loaded successfully! 📸");
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function captureLiveLocation() {
+            const status = document.getElementById('tapLocationStatusText');
+            if (!navigator.geolocation) return showAppToast("GPS not supported");
+            status.textContent = "Detecting GPS...";
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const lat = pos.coords.latitude.toFixed(4);
+                    const lng = pos.coords.longitude.toFixed(4);
+                    document.getElementById('capturedCoords').value = `${lat},${lng}`;
+                    status.textContent = `📍 Tagged (${lat}, ${lng}) ✓`;
+                    showAppToast("Location captured successfully! ✨");
+                },
+                () => {
+                    status.textContent = "Location access denied.";
+                    showAppToast("Please enter area manually");
+                },
+                { enableHighAccuracy: true, timeout: 8000 }
+            );
+        }
+
+        function submitBusinessRegistration() {
+            const catId = document.getElementById('formCategorySelect').value;
+            const title = document.getElementById('formBusinessTitle').value.trim();
+            const owner = document.getElementById('formOwnerName').value.trim();
+            const phone = document.getElementById('formPhone').value.trim();
+            const area = document.getElementById('formArea').value.trim();
+            const pin = document.getElementById('formPin').value.trim();
+            const bio = document.getElementById('formBio').value.trim() || 'Genuine local services.';
+            const coords = document.getElementById('capturedCoords').value;
+            const shopSubtype = (currentPartition === 'shops') ? document.getElementById('formShopSubtype').value : 'none';
+
+            const f1 = document.getElementById('customF1') ? document.getElementById('customF1').value.trim() : '';
+            const f2 = document.getElementById('customF2') ? document.getElementById('customF2').value.trim() : '';
+            const f3 = document.getElementById('customF3') ? document.getElementById('customF3').value.trim() : '';
+
+            if (!title || !phone) return showAppToast("Title and Phone are required!");
+            if (!area) return showAppToast("Area is required!");
+            if (!pin || pin.length !== 6) return showAppToast("Valid 6-digit Pincode required!");
+
+            const newUid = `${pin}${Math.floor(1000 + Math.random() * 9000)}`;
+            const catList = [...SHOP_CATEGORIES, ...SERVICE_CATEGORIES];
+            const catObj = catList.find(c => c.id === catId);
+
+            const newListing = {
+                id: 'm_' + Date.now().toString(),
+                partition: currentPartition,
+                subType: shopSubtype,
+                categoryId: catId,
+                categoryLabel: catObj ? catObj.label : 'Business',
+                title: title,
+                owner: owner,
+                phone: phone,
+                area: area,
+                pin: pin,
+                town: activeTown,
+                coords: coords,
+                uid: newUid,
+                bio: bio,
+                media: selectedImageDataUrl || (catObj ? catObj.avatar : ''),
+                dp: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100',
+                specs: [f1, f2, f3].filter(Boolean),
+                likes: 1,
+                liked: false,
+                commentsCount: 0
+            };
+
+            listings.unshift(newListing);
+            localStorage.setItem('post_market_listings', JSON.stringify(listings));
+
+            renderFeedListings();
+            closeModal('businessRegistrationModal');
+            showAppToast(`Registered successfully! UID: ${newUid} 🚀`);
+        }
+
+        function openProfileByUid(uid) {
+            const item = listings.find(x => x.uid === uid);
+            if (item) openProfileView(item);
+        }
+
+        function openProfileView(item) {
+            currentViewingProfile = item;
+            document.getElementById('viewerProfileTitle').textContent = `${item.title}'s Profile`;
+            document.getElementById('viewerName').textContent = item.title;
+            document.getElementById('viewerBadge').textContent = `Verified: ${item.categoryLabel}`;
+            document.getElementById('viewerAddress').textContent = `📍 ${item.area}, ${item.town} • PIN: ${item.pin}`;
+            document.getElementById('viewerUidPill').textContent = `📋 ${item.uid}`;
+            document.getElementById('viewerBioText').textContent = item.bio;
+            document.getElementById('viewerDpImg').src = item.dp || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120';
+
+            document.getElementById('viewerCallLink').href = `tel:${item.phone}`;
+            document.getElementById('viewerWaLink').href = `https://wa.me/91${item.phone}`;
+            document.getElementById('profileViewerModal').style.display = 'flex';
+        }
+
+        function closeProfileViewer() {
+            document.getElementById('profileViewerModal').style.display = 'none';
+        }
+
+        function copyViewerUID() {
+            if (currentViewingProfile && currentViewingProfile.uid) {
+                copyUID(currentViewingProfile.uid);
+            }
+        }
+
+        function copyUID(uid) {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(uid);
+                showAppToast(`UID Copied: ${uid} 📋`);
+            }
+        }
+
+        function handleUniversalSearch(val) {
+            const pop = document.getElementById('searchHintsPop');
+            if (!pop) return;
+
+            const q = val.trim();
+            if (!q) {
+                pop.innerHTML = `
+                    <div class="search-hint-pill" onclick="setSearchFilter('@')"><span><b>@</b> User Profile</span> <span style="font-size:10px;">People</span></div>
+                    <div class="search-hint-pill" onclick="setSearchFilter('#IN ')"><span><b>#IN</b> Pincode Channel</span> <span style="font-size:10px;">Location</span></div>
+                    <div class="search-hint-pill" onclick="setSearchFilter('#shop ')"><span><b>#shop</b> Shops & Retail</span> <span style="font-size:10px;">Market</span></div>
+                    <div class="search-hint-pill" onclick="setSearchFilter('#need ')"><span><b>#need</b> Services & Pros</span> <span style="font-size:10px;">Services</span></div>
+                `;
+                pop.style.display = 'flex';
+                renderFeedListings();
+                return;
+            }
+
+            pop.style.display = 'flex';
+            const clean = q.replace('#IN', '').replace('#in', '').replace('#', '').trim();
+            const channels = getGlobalChannels();
+
+            if (/^\d{3,6}$/.test(clean) || q.toLowerCase().startsWith('#in')) {
+                const matchedChannel = channels.find(c => c.pin === clean || c.name.toLowerCase().includes(clean.toLowerCase()));
+
+                if (matchedChannel) {
+                    pop.innerHTML = `
+                        <div class="search-hint-pill" onclick="setTownLocation('${matchedChannel.name}', '${matchedChannel.pin}')">
+                            <span>🏪 <b>Switch Market:</b> ${matchedChannel.name} (${matchedChannel.pin})</span>
+                            <span style="font-size:10px; color:#10B981; font-weight:800;">Switch &rarr;</span>
+                        </div>
+                        <div class="search-hint-pill" onclick="window.location.href='area.html?pin=${matchedChannel.pin}&name=${encodeURIComponent(matchedChannel.name)}'">
+                            <span>📍 <b>Open Channel:</b> ${matchedChannel.name} (#IN ${matchedChannel.pin})</span>
+                            <span style="font-size:10px; color:#2563EB; font-weight:800;">Open &rarr;</span>
+                        </div>
+                    `;
+                    return;
+                } else if (/^\d{6}$/.test(clean)) {
+                    pop.innerHTML = `
+                        <div class="search-hint-pill" onclick="triggerCreateChannelFlow('${clean}')">
+                            <span>➕ <b>Channel Not Found:</b> Create Channel for #IN ${clean}</span>
+                            <span style="font-size:10px; color:#10B981; font-weight:900; background:#DCFCE7; padding:2px 8px; border-radius:6px;">Create &rarr;</span>
+                        </div>
+                    `;
+                    return;
+                }
+            }
+
+            if (/^\d{10}$/.test(clean)) {
+                pop.innerHTML = `
+                    <div class="search-hint-pill" onclick="openProfileByUid('${clean}')">
+                        <span>📋 <b>Open Listing / Profile:</b> UID ${clean}</span>
+                        <span style="font-size:10px; color:#2563EB;">Open &rarr;</span>
+                    </div>
+                `;
+                return;
+            }
+
+            if (q.startsWith('@')) {
+                const uTerm = q.replace('@', '').toLowerCase();
+                pop.innerHTML = `
+                    <div class="search-hint-pill" onclick="window.location.href='profile.html?user=${encodeURIComponent(uTerm)}'">
+                        <span>👤 Open Profile for <b>@${uTerm}</b></span>
+                        <span style="font-size:10px; color:#2563EB;">View &rarr;</span>
+                    </div>
+                `;
+                return;
+            }
+
+            renderFeedListings();
+        }
+
+        function triggerCreateChannelFlow(pin) {
+            const areaName = prompt(`Enter Town / Locality name for PIN ${pin}:`, `Area ${pin}`);
+            if (areaName && areaName.trim()) {
+                saveGlobalChannel(pin, areaName.trim());
+                showAppToast(`Channel created for ${areaName}! 🚀`);
+                setTownLocation(areaName.trim(), pin);
+            }
+        }
+
+        function setSearchFilter(prefix) {
+            const inp = document.getElementById('universalSearchInput');
+            inp.value = prefix; inp.focus();
+            handleUniversalSearch(prefix);
+        }
+
+        function executeSearch() {
+            const q = document.getElementById('universalSearchInput').value.trim();
+            if (q) showAppToast(`Searching Market for: ${q}`);
+        }
+
+        window.addEventListener('click', (e) => {
+            if (!e.target.closest('.search-container')) {
+                const pop = document.getElementById('searchHintsPop');
+                if (pop) pop.style.display = 'none';
+            }
+        });
+
+        function setTownLocation(town, pin) {
+            activeTown = town;
+            activePin = pin;
+            document.getElementById('currentPincodeLabel').textContent = pin;
+            closeModal('locationPickerModal');
+            const pop = document.getElementById('searchHintsPop');
+            if (pop) pop.style.display = 'none';
+            renderFeedListings();
+            showAppToast(`Loaded ${town} (${pin})`);
+        }
+
+        function openLocationPickerModal() { 
+            renderLocationPickerList();
+            openModal('locationPickerModal'); 
+        }
+
+        function openClusterDrawer() {
+            document.getElementById('clusterDrawerOverlay').style.display = 'block';
+            document.getElementById('clusterDrawer').classList.add('open');
+        }
+        function closeClusterDrawer() {
+            document.getElementById('clusterDrawerOverlay').style.display = 'none';
+            document.getElementById('clusterDrawer').classList.remove('open');
+        }
+
+        function toggleThemeInline() {
+            document.body.classList.toggle('dark-mode');
+        }
+
+        function openModal(id) { closeClusterDrawer(); document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        function showAppToast(message) {
+            const toast = document.getElementById('appToastBar');
+            document.getElementById('toastMessageText').textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        }
+    </script>
+</body>
+</html>

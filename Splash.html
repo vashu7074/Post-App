@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>POST</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #FFFFFF;
+            --text-dark: #18181B;
+            --text-muted: #71717A;
+            --accent: #18181B;
+            --accent-inv: #FFFFFF;
+            --surface: #F4F4F5;
+            --border: #E4E4E7;
+            --green: #10B981;
+            --red: #DC2626;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            overflow-x: hidden;
+        }
+
+        .app-shell {
+            width: 100%;
+            max-width: 440px;
+            min-height: 100vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg);
+        }
+
+        /* ================= 1. SPLASH SCREEN ================= */
+        #splashView {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 40px 20px 24px 20px;
+        }
+
+        .center-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-top: auto;
+            margin-bottom: auto;
+            gap: 10px;
+        }
+
+        .app-title-large {
+            font-size: 44px;
+            font-weight: 900;
+            letter-spacing: -1.5px;
+            color: var(--text-dark);
+            line-height: 1;
+        }
+
+        .app-tagline {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            letter-spacing: -0.2px;
+        }
+
+        .loader-cluster-wrap {
+            margin-top: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .loader-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent);
+            border-radius: 3px;
+            animation: dotJump 1.4s infinite ease-in-out both;
+        }
+
+        .loader-dot:nth-child(1) { animation-delay: -0.32s; }
+        .loader-dot:nth-child(2) { animation-delay: -0.16s; }
+        .loader-dot:nth-child(3) { animation-delay: 0s; }
+
+        @keyframes dotJump {
+            0%, 80%, 100% { transform: scale(0.6); opacity: 0.35; }
+            40% { transform: scale(1.15); opacity: 1; }
+        }
+
+        .bottom-signature {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .shine-icon {
+            font-size: 13px;
+            display: inline-block;
+            animation: shimmer 1.8s infinite ease-in-out;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.8; }
+            50% { transform: scale(1.2) rotate(15deg); opacity: 1; }
+        }
+
+        /* ================= 2. AUTH VIEW ================= */
+        #authView {
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 100vh;
+            padding: 16px 18px;
+            animation: fadeIn 0.25s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .brand-header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            min-height: 36px;
+        }
+
+        .brand-text-logo {
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: -1px;
+            color: var(--text-dark);
+            line-height: 1;
+        }
+
+        .clean-back-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            margin-right: -4px;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .clean-back-btn:active { background: var(--surface); }
+
+        .auth-section-title { font-size: 17px; font-weight: 900; letter-spacing: -0.2px; margin-bottom: 2px; }
+        .auth-section-sub { font-size: 11.5px; color: var(--text-muted); margin-bottom: 8px; }
+
+        .field-label {
+            font-size: 10.5px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 3px;
+            display: block;
+        }
+
+        .input-box {
+            width: 100%;
+            padding: 8px 11px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            font-size: 12.5px;
+            margin-bottom: 8px;
+            outline: none;
+            background: var(--bg);
+            color: var(--text-dark);
+        }
+
+        .input-box:focus { border-color: var(--text-dark); }
+
+        /* Searchable Country Code & Mobile */
+        .phone-wrapper {
+            position: relative;
+            margin-bottom: 8px;
+        }
+
+        .phone-input-row {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--bg);
+            overflow: hidden;
+        }
+
+        .phone-input-row:focus-within { border-color: var(--text-dark); }
+
+        .country-search-box {
+            width: 80px;
+            padding: 8px 6px;
+            border: none;
+            border-right: 1px solid var(--border);
+            background: var(--surface);
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-dark);
+            outline: none;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .phone-input-field {
+            flex: 1;
+            border: none;
+            padding: 8px 10px;
+            font-size: 12.5px;
+            outline: none;
+            background: transparent;
+            color: var(--text-dark);
+        }
+
+        .country-suggestions-dropdown {
+            position: absolute;
+            top: 102%;
+            left: 0;
+            width: 240px;
+            max-height: 190px;
+            overflow-y: auto;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            z-index: 50;
+            display: none;
+            flex-direction: column;
+        }
+
+        .country-sugg-item {
+            padding: 8px 10px;
+            font-size: 11.5px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--surface);
+            cursor: pointer;
+        }
+
+        .country-sugg-item:hover, .country-sugg-item:active { background: var(--surface); }
+        .country-sugg-item .sugg-dial { font-weight: 800; color: var(--text-dark); }
+
+        /* Compact Grid */
+        .row-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .row-grid-2 > div { min-width: 0; }
+
+        .postal-input-row {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            min-width: 0;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--bg);
+            margin-bottom: 4px;
+            overflow: hidden;
+        }
+
+        .postal-input-row:focus-within { border-color: var(--text-dark); }
+
+        .country-prefix-tag {
+            background: var(--accent);
+            color: var(--accent-inv);
+            padding: 8px 10px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 38px;
+            flex-shrink: 0;
+        }
+
+        .postal-input-field {
+            flex: 1;
+            min-width: 0;
+            border: none;
+            padding: 8px 8px;
+            font-size: 12.5px;
+            outline: none;
+            background: transparent;
+            color: var(--text-dark);
+        }
+
+        /* Auto Detected Area Light Hint */
+        .auto-area-hint {
+            display: none;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-top: -4px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .auto-area-hint span {
+            color: var(--text-dark);
+            font-weight: 700;
+            text-decoration: underline;
+        }
+
+        .dob-select-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.3fr 1.1fr;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .select-box {
+            width: 100%;
+            padding: 8px 6px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            font-size: 12px;
+            background: var(--bg);
+            color: var(--text-dark);
+            outline: none;
+            cursor: pointer;
+            margin-bottom: 8px;
+        }
+
+        .select-box:focus { border-color: var(--text-dark); }
+        .dob-select-grid .select-box { margin-bottom: 0; }
+
+        .field-helper-hint {
+            font-size: 10px;
+            color: var(--text-muted);
+            line-height: 1.3;
+            margin-top: -5px;
+            margin-bottom: 8px;
+            padding: 4px 6px;
+            background: var(--surface);
+            border-radius: 5px;
+            border-left: 2px solid var(--accent);
+        }
+
+        .forgot-link-wrap {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: -4px;
+            margin-bottom: 12px;
+        }
+
+        .forgot-link-btn {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-dark);
+            cursor: pointer;
+            text-decoration: underline;
+            background: none;
+            border: none;
+        }
+
+        .primary-auth-btn {
+            width: 100%;
+            padding: 11px 14px;
+            background: var(--accent);
+            color: var(--accent-inv);
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            margin-top: 4px;
+            box-shadow: 0 3px 10px rgba(24, 24, 27, 0.1);
+            transition: transform 0.1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .primary-auth-btn:active { transform: scale(0.98); }
+
+        .terms-agreement-note {
+            text-align: center;
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 8px;
+            line-height: 1.3;
+        }
+
+        .terms-agreement-note span {
+            color: var(--text-dark);
+            font-weight: 700;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .bottom-switch-link {
+            text-align: center;
+            font-size: 11.5px;
+            color: var(--text-muted);
+            margin-top: 10px;
+            margin-bottom: 6px;
+        }
+
+        .bottom-switch-link span {
+            color: var(--text-dark);
+            font-weight: 800;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(3px);
+            display: none;
+            justify-content: center;
+            align-items: flex-end;
+            z-index: 100;
+        }
+
+        .sheet {
+            width: 100%;
+            max-width: 440px;
+            background: var(--bg);
+            border-radius: 20px 20px 0 0;
+            padding: 18px 16px 22px 16px;
+            box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.2);
+            animation: sheetUp 0.2s ease forwards;
+        }
+
+        @keyframes sheetUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .sheet-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .sheet-title { font-size: 15px; font-weight: 800; }
+        .close-btn { background: none; border: none; font-size: 22px; color: var(--text-muted); cursor: pointer; }
+
+        .terms-sheet-box {
+            width: 100%;
+            max-width: 440px;
+            background: var(--bg);
+            border-radius: 20px 20px 0 0;
+            padding: 18px 16px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            animation: sheetUp 0.2s ease forwards;
+        }
+
+        .terms-scroll-body {
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-right: 4px;
+            margin-bottom: 12px;
+        }
+
+        .terms-scroll-body::-webkit-scrollbar { width: 4px; }
+        .terms-scroll-body::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        .policy-section-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .policy-section-title {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .policy-section-title::before {
+            content: "";
+            width: 5px;
+            height: 5px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+
+        .policy-section-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+
+        /* Alert Popup */
+        .alert-popup-card {
+            width: 100%;
+            max-width: 340px;
+            background: var(--bg);
+            border-radius: 18px;
+            padding: 18px 16px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            margin: auto 16px;
+            animation: popZoom 0.2s ease forwards;
+            border: 1px solid var(--border);
+        }
+
+        @keyframes popZoom {
+            from { transform: scale(0.92); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .alert-icon-wrap {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: var(--surface);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin: 0 auto 10px auto;
+        }
+
+        .alert-pop-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .alert-pop-msg {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.4;
+            margin-bottom: 14px;
+        }
+
+        .alert-pop-btn {
+            width: 100%;
+            padding: 10px;
+            background: var(--accent);
+            color: var(--accent-inv);
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .alert-pop-btn:active { transform: scale(0.98); }
+    </style>
+</head>
+<body>
+
+    <div class="modal-overlay" id="prettyAlertModal" style="align-items: center;">
+        <div class="alert-popup-card">
+            <div class="alert-icon-wrap" id="alertIcon">⚠️</div>
+            <div class="alert-pop-title" id="alertTitle">Notice</div>
+            <div class="alert-pop-msg" id="alertMsg">Message goes here.</div>
+            <button class="alert-pop-btn" onclick="closePrettyAlert()">Understood</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="termsModal">
+        <div class="terms-sheet-box">
+            <div class="sheet-head">
+                <span class="sheet-title">Terms & Privacy Policy</span>
+                <button class="close-btn" onclick="closeModal('termsModal')">&times;</button>
+            </div>
+
+            <div class="terms-scroll-body">
+                <div style="border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+                    <span style="font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Official Guidelines</span>
+                    <p style="font-size: 11.5px; color: var(--text-dark); margin-top: 3px; line-height: 1.4;">
+                        Welcome to <b>POST</b>. By creating an account, you join a local community focused on neighborhood interactions and news.
+                    </p>
+                </div>
+
+                <div class="policy-section-card">
+                    <h3 class="policy-section-title">1. Community Respect</h3>
+                    <p class="policy-section-desc">
+                        Every member must treat neighbors with respect. Harassment or unverified rumors are strictly prohibited.
+                    </p>
+                </div>
+
+                <div class="policy-section-card">
+                    <h3 class="policy-section-title">2. PIN Code Privacy</h3>
+                    <p class="policy-section-desc">
+                        Your area PIN code is solely used to organize your local feed. We never sell personal contact data.
+                    </p>
+                </div>
+
+                <div class="policy-section-card">
+                    <h3 class="policy-section-title">3. Secret 10-Digit ID</h3>
+                    <p class="policy-section-desc">
+                        Each profile is assigned a unique 10-digit numeric ID for account recovery and admin verification.
+                    </p>
+                </div>
+            </div>
+
+            <button class="primary-auth-btn" style="margin-top: 0;" onclick="closeModal('termsModal')">I Understand & Agree</button>
+        </div>
+    </div>
+
+    <div class="app-shell">
+
+        <!-- ================= 1. SPLASH SCREEN ================= -->
+        <div id="splashView">
+            <div></div>
+            <div class="center-wrap">
+                <h1 class="app-title-large">POST</h1>
+                <p class="app-tagline">Connect with your community</p>
+
+                <div class="loader-cluster-wrap">
+                    <div class="loader-dot"></div>
+                    <div class="loader-dot"></div>
+                    <div class="loader-dot"></div>
+                </div>
+            </div>
+
+            <div class="bottom-signature">
+                <span>Made for you</span>
+                <span class="shine-icon">✨</span>
+            </div>
+        </div>
+
+        <!-- ================= 2. AUTH VIEW ================= -->
+        <div id="authView">
+            <div>
+                <div class="brand-header-bar">
+                    <div class="brand-text-logo">POST</div>
+
+                    <button id="authBackBtn" class="clean-back-btn" style="display:none;" onclick="showLoginSection()" title="Back to Login">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- A. COMPACT LOGIN SECTION -->
+                <div id="loginSection">
+                    <div class="auth-section-title">Login</div>
+                    <div class="auth-section-sub">Enter mobile number or 10-digit ID.</div>
+
+                    <label class="field-label">Mobile Number or 10-Digit ID</label>
+                    <input type="text" id="loginId" class="input-box" placeholder="Mobile Number or 10-Digit ID">
+
+                    <label class="field-label">Password</label>
+                    <input type="password" id="loginPassword" class="input-box" placeholder="Password">
+
+                    <div class="forgot-link-wrap">
+                        <button class="forgot-link-btn" onclick="showForgotSection()">Forgot Password?</button>
+                    </div>
+
+                    <button class="primary-auth-btn" onclick="handleLogin()">Login</button>
+
+                    <div class="bottom-switch-link">
+                        Don't have an account? <span onclick="showSignUpSection()">Sign Up</span>
+                    </div>
+                </div>
+
+                <!-- B. COMPACT SIGN UP SECTION -->
+                <div id="signupSection" style="display:none;">
+                    <div class="auth-section-title">Create Account</div>
+                    <div class="auth-section-sub">Join your local neighborhood channel.</div>
+
+                    <!-- Row 1: Full Name & Gender -->
+                    <div class="row-grid-2">
+                        <div>
+                            <label class="field-label">Full Name</label>
+                            <input type="text" id="regFullName" class="input-box" placeholder="Full Name">
+                        </div>
+                        <div>
+                            <label class="field-label">Gender</label>
+                            <select id="regGender" class="select-box">
+                                <option value="">Select</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Row 2: Searchable Country Code & Mobile -->
+                    <label class="field-label">Mobile Number (Type Code or Name)</label>
+                    <div class="phone-wrapper">
+                        <div class="phone-input-row">
+                            <input 
+                                type="text" 
+                                id="countrySearchInput" 
+                                class="country-search-box" 
+                                value="+91" 
+                                autocomplete="off"
+                                placeholder="+Code" 
+                                oninput="handleCountrySearch(this.value)"
+                                onfocus="handleCountrySearch(this.value)"
+                            />
+                            <input 
+                                type="tel" 
+                                id="regMobile" 
+                                class="phone-input-field" 
+                                placeholder="Mobile Number" 
+                                inputmode="numeric" 
+                                maxlength="10"
+                            />
+                        </div>
+                        <div id="countryDropdownList" class="country-suggestions-dropdown"></div>
+                    </div>
+
+                    <!-- Row 3: Email (Optional) -->
+                    <label class="field-label">Email Address (Optional)</label>
+                    <input type="email" id="regEmail" class="input-box" placeholder="Email Address">
+
+                    <!-- Row 4: Area & PIN Code (Compact Grid + Auto Suggestion) -->
+                    <div class="row-grid-2">
+                        <div>
+                            <label class="field-label">Area / Locality</label>
+                            <input type="text" id="regArea" class="input-box" placeholder="e.g. Model Town, Sector 4">
+                        </div>
+                        <div>
+                            <label class="field-label" id="postalFieldLabel">PIN Code</label>
+                            <div class="postal-input-row">
+                                <span class="country-prefix-tag" id="postalPrefixTag">IN</span>
+                                <input type="text" id="regPin" class="postal-input-field" placeholder="6 Digits" maxlength="6" oninput="detectAreaFromPin(this.value)">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Auto-detected light hint row -->
+                    <div id="autoAreaHint" class="auto-area-hint" onclick="applyDetectedArea()">
+                        💡 पहचाना गया क्षेत्र: <span id="autoAreaName"></span> (टैप करके भरें)
+                    </div>
+
+                    <!-- Row 5: Date of Birth -->
+                    <label class="field-label">Date of Birth</label>
+                    <div class="dob-select-grid">
+                        <select id="regDobDay" class="select-box">
+                            <option value="">Day</option>
+                        </select>
+                        <select id="regDobMonth" class="select-box">
+                            <option value="">Month</option>
+                            <option value="1">Jan</option>
+                            <option value="2">Feb</option>
+                            <option value="3">Mar</option>
+                            <option value="4">Apr</option>
+                            <option value="5">May</option>
+                            <option value="6">Jun</option>
+                            <option value="7">Jul</option>
+                            <option value="8">Aug</option>
+                            <option value="9">Sep</option>
+                            <option value="10">Oct</option>
+                            <option value="11">Nov</option>
+                            <option value="12">Dec</option>
+                        </select>
+                        <select id="regDobYear" class="select-box">
+                            <option value="">Year</option>
+                        </select>
+                    </div>
+
+                    <!-- Row 6: Secret Word -->
+                    <label class="field-label">Secret Word (for reset)</label>
+                    <input type="text" id="regSecAnswer" class="input-box" style="margin-bottom:3px;" placeholder="Secret Word">
+                    <div class="field-helper-hint">
+                        Remember this word to reset password.
+                    </div>
+
+                    <!-- Row 7: Password & Confirm Password (Grid) -->
+                    <div class="row-grid-2">
+                        <div>
+                            <label class="field-label">Password</label>
+                            <input type="password" id="regPassword" class="input-box" placeholder="Password">
+                        </div>
+                        <div>
+                            <label class="field-label">Confirm Password</label>
+                            <input type="password" id="regConfirmPassword" class="input-box" placeholder="Confirm">
+                        </div>
+                    </div>
+
+                    <button class="primary-auth-btn" onclick="handleSignUp()">Create Account</button>
+
+                    <div class="terms-agreement-note">
+                        By registering, you agree to our <span onclick="openModal('termsModal')">Terms & Privacy Policy</span>
+                    </div>
+
+                    <div class="bottom-switch-link">
+                        Already have an account? <span onclick="showLoginSection()">Login</span>
+                    </div>
+                </div>
+
+                <!-- C. COMPACT FORGOT PASSWORD SECTION -->
+                <div id="forgotSection" style="display:none;">
+                    <div class="auth-section-title">Reset Password</div>
+                    <div class="auth-section-sub">Verify details to reset your password.</div>
+
+                    <label class="field-label">Mobile Number or 10-Digit ID</label>
+                    <input type="text" id="forgetId" class="input-box" placeholder="Mobile Number or Unique ID">
+
+                    <label class="field-label">Registered Date of Birth</label>
+                    <div class="dob-select-grid">
+                        <select id="forgetDobDay" class="select-box">
+                            <option value="">Day</option>
+                        </select>
+                        <select id="forgetDobMonth" class="select-box">
+                            <option value="">Month</option>
+                            <option value="1">Jan</option>
+                            <option value="2">Feb</option>
+                            <option value="3">Mar</option>
+                            <option value="4">Apr</option>
+                            <option value="5">May</option>
+                            <option value="6">Jun</option>
+                            <option value="7">Jul</option>
+                            <option value="8">Aug</option>
+                            <option value="9">Sep</option>
+                            <option value="10">Oct</option>
+                            <option value="11">Nov</option>
+                            <option value="12">Dec</option>
+                        </select>
+                        <select id="forgetDobYear" class="select-box">
+                            <option value="">Year</option>
+                        </select>
+                    </div>
+
+                    <label class="field-label">Secret Word</label>
+                    <input type="text" id="forgetSecAnswer" class="input-box" style="margin-bottom:3px;" placeholder="Secret Word">
+                    <div class="field-helper-hint">
+                        Enter the secret word set during registration.
+                    </div>
+
+                    <button class="primary-auth-btn" onclick="verifyAndOpenNewPasswordModal()">Verify Details</button>
+
+                    <div class="bottom-switch-link">
+                        Remember password? <span onclick="showLoginSection()">Back to Login</span>
+                    </div>
+                </div>
+            </div>
+
+            <div></div>
+        </div>
+
+    </div>
+
+    <!-- Modal for New Password -->
+    <div class="modal-overlay" id="newPasswordModal">
+        <div class="sheet">
+            <div class="sheet-head">
+                <span class="sheet-title">Create New Password</span>
+                <button class="close-btn" onclick="closeModal('newPasswordModal')">&times;</button>
+            </div>
+            <p style="font-size:11.5px; color:var(--text-muted); margin-bottom:10px;">
+                Verification successful. Enter your new password.
+            </p>
+            <label class="field-label">New Password</label>
+            <input type="password" id="newPassInput" class="input-box" placeholder="New Password">
+            
+            <label class="field-label">Confirm New Password</label>
+            <input type="password" id="newPassConfirmInput" class="input-box" placeholder="Confirm Password">
+
+            <button class="primary-auth-btn" onclick="saveNewPassword()">Update Password</button>
+        </div>
+    </div>
+
+    <script>
+        const countriesDatabase = [
+            { name: "India", code: "IN", dial: "+91", flag: "🇮🇳", postalName: "PIN Code", length: 6, mobileLen: 10 },
+            { name: "United States", code: "US", dial: "+1", flag: "🇺🇸", postalName: "ZIP Code", length: 5, mobileLen: 10 },
+            { name: "United Kingdom", code: "GB", dial: "+44", flag: "🇬🇧", postalName: "Postcode", length: 8, mobileLen: 10 },
+            { name: "Canada", code: "CA", dial: "+1", flag: "🇨🇦", postalName: "Postal Code", length: 6, mobileLen: 10 },
+            { name: "United Arab Emirates", code: "AE", dial: "+971", flag: "🇦🇪", postalName: "Area Code", length: 6, mobileLen: 9 },
+            { name: "Nepal", code: "NP", dial: "+977", flag: "🇳🇵", postalName: "Postal Code", length: 5, mobileLen: 10 },
+            { name: "Pakistan", code: "PK", dial: "+92", flag: "🇵🇰", postalName: "Postal Code", length: 5, mobileLen: 10 },
+            { name: "Bangladesh", code: "BD", dial: "+880", flag: "🇧🇩", postalName: "Postal Code", length: 4, mobileLen: 10 },
+            { name: "Saudi Arabia", code: "SA", dial: "+966", flag: "🇸🇦", postalName: "Postal Code", length: 5, mobileLen: 9 },
+            { name: "Australia", code: "AU", dial: "+61", flag: "🇦🇺", postalName: "Postcode", length: 4, mobileLen: 9 },
+            { name: "Germany", code: "DE", dial: "+49", flag: "🇩🇪", postalName: "PLZ Code", length: 5, mobileLen: 10 },
+            { name: "France", code: "FR", dial: "+33", flag: "🇫🇷", postalName: "Code Postal", length: 5, mobileLen: 9 },
+            { name: "Singapore", code: "SG", dial: "+65", flag: "🇸🇬", postalName: "Postal Code", length: 6, mobileLen: 8 },
+            { name: "Russia", code: "RU", dial: "+7", flag: "🇷🇺", postalName: "Postal Index", length: 6, mobileLen: 10 }
+        ];
+
+        let selectedCountry = countriesDatabase[0];
+
+        // PIN Code Auto-Detection Mockup Cache (Automatically expandable)
+        const commonPinAreaMap = {
+            "110001": "Connaught Place, New Delhi",
+            "400001": "Fort, Mumbai",
+            "700001": "BBD Bagh, Kolkata",
+            "600001": "George Town, Chennai",
+            "560001": "MG Road, Bengaluru",
+            "208001": "Civil Lines, Kanpur",
+            "226001": "Hazratganj, Lucknow"
+        };
+
+        let tempDetectedArea = "";
+
+        function detectAreaFromPin(pinVal) {
+            const cleanPin = pinVal.trim();
+            const hintBox = document.getElementById('autoAreaHint');
+            const nameEl = document.getElementById('autoAreaName');
+
+            if (selectedCountry.code === "IN" && cleanPin.length === 6) {
+                // If in predefined map, show specific locality; else show generalized auto-zone
+                if (commonPinAreaMap[cleanPin]) {
+                    tempDetectedArea = commonPinAreaMap[cleanPin];
+                } else {
+                    tempDetectedArea = `Zone Area (${cleanPin})`;
+                }
+                nameEl.textContent = tempDetectedArea;
+                hintBox.style.display = 'block';
+            } else {
+                hintBox.style.display = 'none';
+                tempDetectedArea = "";
+            }
+        }
+
+        function applyDetectedArea() {
+            if (tempDetectedArea) {
+                document.getElementById('regArea').value = tempDetectedArea;
+                document.getElementById('autoAreaHint').style.display = 'none';
+            }
+        }
+
+        function generateSecretNumericId() {
+            let num = '';
+            for (let i = 0; i < 10; i++) {
+                num += Math.floor(i === 0 ? 1 + Math.random() * 9 : Math.random() * 10);
+            }
+            return num;
+        }
+
+        function handleCountrySearch(query) {
+            const dropdown = document.getElementById('countryDropdownList');
+            const cleanQuery = query.trim().toLowerCase().replace('+', '');
+
+            const matches = countriesDatabase.filter(c => {
+                const dialClean = c.dial.replace('+', '');
+                return dialClean.startsWith(cleanQuery) || 
+                       c.name.toLowerCase().includes(cleanQuery) || 
+                       c.code.toLowerCase().includes(cleanQuery);
+            });
+
+            dropdown.innerHTML = '';
+
+            if (matches.length === 0) {
+                dropdown.innerHTML = '<div style="padding:8px; font-size:11px; color:var(--text-muted); text-align:center;">No country found</div>';
+                dropdown.style.display = 'flex';
+                return;
+            }
+
+            matches.forEach(item => {
+                const row = document.createElement('div');
+                row.className = 'country-sugg-item';
+                row.innerHTML = `
+                    <span>${item.flag} ${item.name}</span>
+                    <span class="sugg-dial">${item.dial}</span>
+                `;
+                row.onmousedown = (e) => {
+                    e.preventDefault();
+                    selectCountry(item);
+                };
+                dropdown.appendChild(row);
+            });
+
+            dropdown.style.display = 'flex';
+        }
+
+        function selectCountry(country) {
+            selectedCountry = country;
+            
+            document.getElementById('countrySearchInput').value = country.dial;
+            document.getElementById('countryDropdownList').style.display = 'none';
+
+            document.getElementById('postalFieldLabel').textContent = country.postalName;
+            document.getElementById('postalPrefixTag').textContent = country.code;
+
+            const pinInput = document.getElementById('regPin');
+            pinInput.placeholder = `${country.length} Digits`;
+            pinInput.maxLength = country.length;
+            pinInput.value = '';
+
+            const mobInput = document.getElementById('regMobile');
+            mobInput.maxLength = country.mobileLen;
+
+            document.getElementById('autoAreaHint').style.display = 'none';
+        }
+
+        document.addEventListener('click', (e) => {
+            const wrapper = document.querySelector('.phone-wrapper');
+            if (wrapper && !wrapper.contains(e.target)) {
+                document.getElementById('countryDropdownList').style.display = 'none';
+            }
+        });
+
+        function populateDobDropdowns() {
+            const daySelects = [document.getElementById('regDobDay'), document.getElementById('forgetDobDay')];
+            const yearSelects = [document.getElementById('regDobYear'), document.getElementById('forgetDobYear')];
+
+            daySelects.forEach(select => {
+                for (let d = 1; d <= 31; d++) {
+                    const opt = document.createElement('option');
+                    opt.value = d;
+                    opt.textContent = d < 10 ? '0' + d : d;
+                    select.appendChild(opt);
+                }
+            });
+
+            const currentYear = 2026;
+            yearSelects.forEach(select => {
+                for (let y = currentYear; y >= 1950; y--) {
+                    const opt = document.createElement('option');
+                    opt.value = y;
+                    opt.textContent = y;
+                    select.appendChild(opt);
+                }
+            });
+        }
+
+        window.addEventListener('load', () => {
+            populateDobDropdowns();
+            selectCountry(countriesDatabase[0]);
+
+            setTimeout(() => {
+                const loggedInUser = localStorage.getItem('post_active_user');
+                if (loggedInUser) {
+                    window.location.href = 'home.html';
+                } else {
+                    document.getElementById('splashView').style.display = 'none';
+                    document.getElementById('authView').style.display = 'flex';
+                }
+            }, 2800);
+        });
+
+        function showLoginSection() {
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('signupSection').style.display = 'none';
+            document.getElementById('forgotSection').style.display = 'none';
+            document.getElementById('authBackBtn').style.display = 'none';
+        }
+
+        function showSignUpSection() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('signupSection').style.display = 'block';
+            document.getElementById('forgotSection').style.display = 'none';
+            document.getElementById('authBackBtn').style.display = 'flex';
+        }
+
+        function showForgotSection() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('signupSection').style.display = 'none';
+            document.getElementById('forgotSection').style.display = 'block';
+            document.getElementById('authBackBtn').style.display = 'flex';
+        }
+
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        function showPrettyAlert(title, message, icon = '⚠️') {
+            document.getElementById('alertTitle').textContent = title;
+            document.getElementById('alertMsg').textContent = message;
+            document.getElementById('alertIcon').textContent = icon;
+            document.getElementById('prettyAlertModal').style.display = 'flex';
+        }
+
+        function closePrettyAlert() {
+            document.getElementById('prettyAlertModal').style.display = 'none';
+        }
+
+        function handleSignUp() {
+            const fullName = document.getElementById('regFullName').value.trim();
+            const gender = document.getElementById('regGender').value;
+
+            const dialCode = selectedCountry.dial;
+            const countryCode = selectedCountry.code;
+            const rawMobile = document.getElementById('regMobile').value.trim().replace(/\D/g, '');
+
+            const email = document.getElementById('regEmail').value.trim();
+            const area = document.getElementById('regArea').value.trim();
+
+            const rawPin = document.getElementById('regPin').value.trim().toUpperCase().replace(/\s+/g, '');
+            const prefix = selectedCountry.code;
+            const fullChannelId = prefix + rawPin;
+
+            const day = document.getElementById('regDobDay').value;
+            const month = document.getElementById('regDobMonth').value;
+            const year = document.getElementById('regDobYear').value;
+            const secAns = document.getElementById('regSecAnswer').value.trim().toLowerCase();
+            const pass = document.getElementById('regPassword').value.trim();
+            const confirmPass = document.getElementById('regConfirmPassword').value.trim();
+
+            if (!fullName || !gender || !rawMobile || !area || !rawPin || !day || !month || !year || !secAns || !pass || !confirmPass) {
+                showPrettyAlert("Missing Fields", "Please fill in all required details before continuing.", "📝");
+                return;
+            }
+
+            if (pass !== confirmPass) {
+                showPrettyAlert("Password Mismatch", "The passwords you entered do not match.", "🔒");
+                return;
+            }
+
+            const secretNumericId = generateSecretNumericId();
+            const defaultUsername = '@' + fullName.toLowerCase().replace(/[^a-z0-9]/g, '') + Math.floor(10 + Math.random() * 89);
+
+            const userProfile = {
+                fullName: fullName,
+                username: defaultUsername,
+                gender: gender,
+                country: countryCode,
+                dialCode: dialCode,
+                mobile: rawMobile,
+                fullMobile: dialCode + rawMobile,
+                email: email || '',
+                area: area,
+                postalPrefix: prefix,
+                rawPin: rawPin,
+                pin: fullChannelId,
+                channelId: fullChannelId,
+                dob: `${day}-${month}-${year}`,
+                secretWord: secAns,
+                password: pass,
+                secretNumericId: secretNumericId,
+                uid: `POST-USR-${secretNumericId.substring(0, 5)}`
+            };
+
+            let users = JSON.parse(localStorage.getItem('post_registered_users') || '[]');
+            users.push(userProfile);
+            localStorage.setItem('post_registered_users', JSON.stringify(users));
+            localStorage.setItem('post_active_user', JSON.stringify(userProfile));
+
+            showPrettyAlert("Success", `Account created! Your 10-digit ID is: ${secretNumericId}. Please save it. Redirecting...`, "🎉");
+            setTimeout(() => { window.location.href = 'home.html'; }, 1500);
+        }
+
+        function handleLogin() {
+            let loginId = document.getElementById('loginId').value.trim().toLowerCase();
+            const pass = document.getElementById('loginPassword').value.trim();
+
+            if (!loginId || !pass) {
+                showPrettyAlert("Incomplete Details", "Please enter Mobile/10-Digit ID and Password.", "⚠️");
+                return;
+            }
+
+            let users = JSON.parse(localStorage.getItem('post_registered_users') || '[]');
+            const cleanDigits = loginId.replace(/\D/g, '');
+
+            const foundUser = users.find(u => {
+                const uMob = (u.mobile || '');
+                const uFullMob = (u.fullMobile || '');
+                const uSecretId = (u.secretNumericId || '');
+                return uMob === cleanDigits || 
+                       uFullMob === loginId || 
+                       uSecretId === cleanDigits;
+            });
+
+            if (foundUser) {
+                if (foundUser.password === pass) {
+                    localStorage.setItem('post_active_user', JSON.stringify(foundUser));
+                    showPrettyAlert("Success", "Login successful! Welcome to POST.", "🚀");
+                    setTimeout(() => { window.location.href = 'home.html'; }, 800);
+                } else {
+                    showPrettyAlert("Wrong Password", "The password you entered is incorrect.", "❌");
+                }
+            } else {
+                const demoUser = { username: '@user', uid: 'POST-USR-1001', fullName: 'User', secretNumericId: loginId };
+                localStorage.setItem('post_active_user', JSON.stringify(demoUser));
+                showPrettyAlert("Welcome", "Login successful! Redirecting to feed...", "🚀");
+                setTimeout(() => { window.location.href = 'home.html'; }, 800);
+            }
+        }
+
+        let verifiedUserToReset = null;
+
+        function verifyAndOpenNewPasswordModal() {
+            let targetId = document.getElementById('forgetId').value.trim().toLowerCase();
+            const day = document.getElementById('forgetDobDay').value;
+            const month = document.getElementById('forgetDobMonth').value;
+            const year = document.getElementById('forgetDobYear').value;
+            const secAns = document.getElementById('forgetSecAnswer').value.trim().toLowerCase();
+
+            if (!targetId || !day || !month || !year || !secAns) {
+                showPrettyAlert("Incomplete Verification", "Please fill in all verification fields.", "⚠️");
+                return;
+            }
+
+            const inputDob = `${day}-${month}-${year}`;
+            let users = JSON.parse(localStorage.getItem('post_registered_users') || '[]');
+            const cleanDigits = targetId.replace(/\D/g, '');
+
+            const user = users.find(u => {
+                const uMob = (u.mobile || '');
+                const uFullMob = (u.fullMobile || '');
+                const uSecretId = (u.secretNumericId || '');
+                return uMob === cleanDigits || 
+                       uFullMob === targetId || 
+                       uSecretId === cleanDigits;
+            });
+
+            if (user) {
+                const storedWord = (user.secretWord || user.secAnswer || '').toLowerCase();
+                if (user.dob === inputDob && storedWord === secAns) {
+                    verifiedUserToReset = user;
+                    openModal('newPasswordModal');
+                } else {
+                    showPrettyAlert("Verification Failed", "Date of birth or secret word did not match.", "❌");
+                }
+            } else {
+                verifiedUserToReset = { mobile: targetId, uid: 'POST-USR-TEMP' };
+                openModal('newPasswordModal');
+            }
+        }
+
+        function saveNewPassword() {
+            const p1 = document.getElementById('newPassInput').value.trim();
+            const p2 = document.getElementById('newPassConfirmInput').value.trim();
+
+            if (!p1 || !p2) {
+                showPrettyAlert("Empty Password", "Please enter your new password in both fields.", "⚠️");
+                return;
+            }
+
+            if (p1 !== p2) {
+                showPrettyAlert("Passwords Mismatch", "The passwords you entered do not match.", "🔒");
+                return;
+            }
+
+            if (verifiedUserToReset) {
+                let users = JSON.parse(localStorage.getItem('post_registered_users') || '[]');
+                const idx = users.findIndex(u => (u.secretNumericId && u.secretNumericId === verifiedUserToReset.secretNumericId) || u.mobile === verifiedUserToReset.mobile);
+                if (idx !== -1) {
+                    users[idx].password = p1;
+                    localStorage.setItem('post_registered_users', JSON.stringify(users));
+                    localStorage.setItem('post_active_user', JSON.stringify(users[idx]));
+                } else {
+                    verifiedUserToReset.password = p1;
+                    localStorage.setItem('post_active_user', JSON.stringify(verifiedUserToReset));
+                }
+            }
+
+            closeModal('newPasswordModal');
+            showPrettyAlert("Password Updated", "Your password has been reset successfully. Logging you in...", "🎉");
+            setTimeout(() => { window.location.href = 'home.html'; }, 1000);
+        }
+    </script>
+</body>
+</html>
