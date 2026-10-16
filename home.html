@@ -199,7 +199,7 @@
             border-radius: 3px;
         }
 
-        /* Vibrant Colorful Filter Chips */
+        /* Filter Chips */
         .filter-chips-bar {
             display: flex;
             gap: 8px;
@@ -247,7 +247,7 @@
             box-shadow: 0 4px 14px rgba(0,0,0,0.12);
         }
 
-        /* Halo Glowing Story Tray */
+        /* Story Tray */
         .story-section {
             background: var(--bg-card);
             padding: 12px 16px;
@@ -263,7 +263,6 @@
             justify-content: space-between; padding: 6px; position: relative;
             cursor: pointer; overflow: hidden; background-size: cover; background-position: center;
         }
-        /* Halo Neon Glow Effect */
         .story-card-rect.has-story {
             padding: 2.5px;
             background: var(--halo-ring);
@@ -329,7 +328,12 @@
             background: var(--bg-card); padding: 12px 16px; border-top: 1px solid var(--border-subtle);
             border-bottom: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 8px;
         }
-        .ad-meta-row { display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: var(--text-muted); font-weight: 700; }
+        .ad-meta-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--text-muted); font-weight: 700; }
+        .ad-book-btn-badge {
+            background: #F59E0B; color: #FFFFFF; border: none; padding: 4px 10px; border-radius: 14px;
+            font-size: 10.5px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;
+        }
+        .ad-book-btn-badge:active { transform: scale(0.95); }
         .ad-content-box {
             position: relative; width: 100%; height: 160px; border-radius: 12px;
             background-size: cover; background-position: center; overflow: hidden; cursor: pointer;
@@ -344,7 +348,7 @@
         .ad-prog-dot { height: 3px; flex: 1; background: rgba(255,255,255,0.4); border-radius: 2px; }
         .ad-prog-dot.active { background: #fff; }
 
-        /* Comments with Like & Liked-By Details */
+        /* Comments */
         .inline-comments-section {
             border-top: 1px solid var(--border-subtle); background: var(--bg-card); padding: 12px 16px;
             display: none; flex-direction: column; gap: 8px;
@@ -439,7 +443,7 @@
         .modal-btn { width: 100%; padding: 11px; background: var(--primary-accent); color: var(--accent-contrast); border: none; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; margin-top: 6px; }
         .modal-btn.sub { background: var(--badge-bg); color: var(--text-main); margin-top: 8px; border: 1px solid var(--border-subtle); }
 
-        /* REAL INSTAGRAM STORY VIEWER */
+        /* Story Viewer */
         .story-viewer-overlay {
             position: fixed; inset: 0; background: #000; z-index: 300; display: none;
             flex-direction: column; justify-content: space-between; color: #fff;
@@ -472,7 +476,7 @@
             100% { transform: translateY(-180px) scale(1.5); opacity: 0; }
         }
 
-        /* MODERN INSTAGRAM STORY STUDIO CREATOR */
+        /* Story Creator Studio */
         .story-studio-overlay {
             position: fixed; inset: 0; background: #000; z-index: 310; display: none;
             flex-direction: column; justify-content: space-between; color: #fff;
@@ -632,7 +636,7 @@
         }
         .app-toast-bar.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
-        /* Clean 4-Item Bottom Nav (Market Removed) */
+        /* Bottom Nav */
         .bottom-nav {
             position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
             width: 100%; max-width: 440px; background: var(--bg-card);
@@ -706,7 +710,7 @@
             <button class="partition-tab-btn" id="tabBtnArea" onclick="switchPartitionTab('area')">Area</button>
         </div>
 
-        <!-- Colorful Vibrant Filter Chips -->
+        <!-- Colorful Filter Chips -->
         <div class="filter-chips-bar" id="filterChipsBar">
             <button class="filter-chip chip-all active" onclick="applyFeedFilter('all', this)">All</button>
             <button class="filter-chip chip-deals" onclick="applyFeedFilter('deals', this)">🔥 Deals</button>
@@ -722,7 +726,7 @@
             <p style="font-size:11.5px; opacity:0.85;">Civic announcements, electricity/water updates and local community posts.</p>
         </div>
 
-        <!-- Halo Glowing Story Tray -->
+        <!-- Story Tray -->
         <div class="story-section">
             <div class="stories-scroll" id="storiesScrollContainer">
                 <div class="story-card-rect has-story" onclick="openStoryStudio()">
@@ -793,7 +797,7 @@
                     </button>
                     <button class="icon-btn" onclick="toggleInlineComments('post_101')">Comment</button>
                     <button class="icon-btn" onclick="openSharePaperPlaneModal('post_101')">
-                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 25 15 22 11 13 2 9 22 2"></polygon></svg>
                     </button>
                 </div>
 
@@ -824,10 +828,13 @@
                 </div>
             </article>
 
-            <!-- Multi-Ad Carousel -->
+            <!-- Multi-Ad Carousel with Self-Serve Ad Booking -->
             <div class="infeed-ad-card">
                 <div class="ad-meta-row">
-                    <span>SPONSORED BUSINESS</span>
+                    <span style="display:flex; align-items:center; gap:6px;">
+                        📢 SPONSORED BUSINESS
+                        <button class="ad-book-btn-badge" onclick="openAdModal()">+ Book Ad</button>
+                    </span>
                     <span id="adTimerBadge">Ad 1 of 3 (Auto 5s)</span>
                 </div>
                 <div class="ad-content-box" id="carouselAdBox" onclick="nextCarouselAdManual()">
@@ -927,7 +934,7 @@
 
         </div>
 
-        <!-- 4 Clean Items (Market Removed) -->
+        <!-- 4 Clean Items Bottom Navigation -->
         <nav class="bottom-nav">
             <a href="home.html" class="nav-item active">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
@@ -1078,7 +1085,35 @@
         </div>
     </div>
 
-    <!-- REAL INSTAGRAM STORY VIEWER -->
+    <!-- Self-Serve Ad Booking Modal (Firestore Integrated) -->
+    <div class="modal-overlay center-box" id="adBookingModal">
+        <div class="modal-popup" style="max-width:340px; text-align:left; background:var(--bg-card); border:1px solid var(--border-subtle);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <h3 style="font-size:15px; font-weight:800; color:var(--text-main);">📢 Book Community Ad</h3>
+                <span onclick="closeAdModal()" style="cursor:pointer; font-size:20px; color:var(--text-muted);">&times;</span>
+            </div>
+            <div style="margin-bottom:10px;">
+                <label style="font-size:11px; font-weight:700; color:var(--text-muted); display:block; margin-bottom:3px;">Business / Shop Name</label>
+                <input type="text" id="adShopNameInput" class="modal-input" placeholder="e.g. Vaishno Sweets & Cafe" style="margin-bottom:0;">
+            </div>
+            <div style="margin-bottom:10px;">
+                <label style="font-size:11px; font-weight:700; color:var(--text-muted); display:block; margin-bottom:3px;">Offer / Tagline</label>
+                <input type="text" id="adOfferTaglineInput" class="modal-input" placeholder="e.g. Flat 20% discount this week!" style="margin-bottom:0;">
+            </div>
+            <div style="margin-bottom:10px;">
+                <label style="font-size:11px; font-weight:700; color:var(--text-muted); display:block; margin-bottom:3px;">Ad Banner Image</label>
+                <input type="file" id="adImageFileInput" accept="image/*" class="modal-input" style="padding:6px; margin-bottom:0;">
+            </div>
+            <div style="margin-bottom:12px;">
+                <label style="font-size:11px; font-weight:700; color:var(--text-muted); display:block; margin-bottom:3px;">Area Pincode</label>
+                <input type="text" id="adPincodeInput" class="modal-input" value="209868" style="margin-bottom:0;">
+            </div>
+            <button class="modal-btn" id="submitAdBtn" onclick="submitSelfServeAd()" style="background:#F59E0B; color:#fff;">Publish Ad Live 🚀</button>
+            <button class="modal-btn sub" onclick="closeAdModal()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- STORY VIEWER -->
     <div class="story-viewer-overlay" id="storyViewerOverlay">
         <div class="story-viewer-progress-bar"><div class="story-viewer-progress-fill" id="storyProgressFill"></div></div>
         <div class="story-viewer-top">
@@ -1100,7 +1135,7 @@
         </div>
     </div>
 
-    <!-- MODERN STORY CREATOR STUDIO -->
+    <!-- STORY CREATOR STUDIO -->
     <div class="story-studio-overlay" id="storyStudioModal">
         <div class="story-studio-top-bar">
             <button onclick="closeStoryStudio()" style="background:none; border:none; color:#fff; font-size:24px; cursor:pointer;">&times;</button>
@@ -1207,6 +1242,10 @@
         </div>
     </div>
 
+    <!-- Firebase SDK Scripts (Compatible CDN) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
     <script>
         // State
         let currentPartition = 'home';
@@ -1233,7 +1272,8 @@
         let activeSharingPostId = null;
         let activeMenuPostId = null;
 
-        const sponsoredAdsList = [
+        // Default Sponsored Ads list
+        let sponsoredAdsList = [
             {
                 title: "Aarav Auto Services",
                 subtitle: "Car & Bike servicing with free doorstep checkup. Call now!",
@@ -1257,6 +1297,21 @@
         let storyViewerTimer = null;
         let currentlyPlayingUrl = null;
         let isAudioPlaying = false;
+
+        // Firebase Configuration & Initialization
+        const firebaseConfig = {
+            apiKey: "AIzaSyCyua81CQttQwE79ZY9dXIZYdAU33-qu3s",
+            authDomain: "post-app-8b3a1.firebaseapp.com",
+            projectId: "post-app-8b3a1",
+            storageBucket: "post-app-8b3a1.firebasestorage.app",
+            messagingSenderId: "678585947736",
+            appId: "1:678585947736:web:52b45ace82b8328c325c2d"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
 
         // Global Channels Registry
         const DEFAULT_CHANNELS = [
@@ -1282,7 +1337,90 @@
             initDraggableMusicSticker();
             initPullToRefresh();
             loadPersistedUserStory();
+            listenToLiveAds();
         });
+
+        // Live Realtime Firestore Ads Listener
+        function listenToLiveAds() {
+            db.collection("ads").orderBy("createdAt", "desc").limit(8)
+                .onSnapshot((snapshot) => {
+                    const dynamicAds = [];
+                    snapshot.forEach((doc) => {
+                        const data = doc.data();
+                        if (data.imageUrl && data.shopName) {
+                            dynamicAds.push({
+                                title: data.shopName,
+                                subtitle: data.offer || 'Special local community discount!',
+                                bg: data.imageUrl
+                            });
+                        }
+                    });
+
+                    if (dynamicAds.length > 0) {
+                        sponsoredAdsList = dynamicAds;
+                        currentAdIndex = 0;
+                        updateAdDisplay();
+                    }
+                }, (err) => {
+                    console.log("Firebase sync waiting: ", err);
+                });
+        }
+
+        // Modal Controls for Self-Serve Ad Engine
+        function openAdModal() {
+            document.getElementById('adBookingModal').style.display = 'flex';
+        }
+        function closeAdModal() {
+            document.getElementById('adBookingModal').style.display = 'none';
+        }
+
+        async function submitSelfServeAd() {
+            const shopName = document.getElementById('adShopNameInput').value.trim();
+            const offerTagline = document.getElementById('adOfferTaglineInput').value.trim();
+            const pincode = document.getElementById('adPincodeInput').value.trim();
+            const fileInput = document.getElementById('adImageFileInput');
+            const submitBtn = document.getElementById('submitAdBtn');
+
+            if (!shopName) {
+                alert("Please enter shop or business name!");
+                return;
+            }
+            if (fileInput.files.length === 0) {
+                alert("Please select a poster or banner photo!");
+                return;
+            }
+
+            submitBtn.innerText = "Publishing Ad...";
+            submitBtn.disabled = true;
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const base64Img = e.target.result;
+                try {
+                    await db.collection("ads").add({
+                        shopName: shopName,
+                        offer: offerTagline || "Exclusive Local Offer",
+                        imageUrl: base64Img,
+                        pincode: pincode || "209868",
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    showAppToast("Ad published successfully! 🚀");
+                    closeAdModal();
+                    document.getElementById('adShopNameInput').value = '';
+                    document.getElementById('adOfferTaglineInput').value = '';
+                    fileInput.value = '';
+                } catch(error) {
+                    console.error("Ad creation error:", error);
+                    alert("Error publishing ad: " + error.message);
+                } finally {
+                    submitBtn.innerText = "Publish Ad Live 🚀";
+                    submitBtn.disabled = false;
+                }
+            };
+            reader.readAsDataURL(file);
+        }
 
         // Universal Search Engine
         function handleUniversalSearch(val) {
@@ -1894,12 +2032,16 @@
 
         function initAdCarousel() {
             updateAdDisplay();
+            clearInterval(adCarouselTimer);
             adCarouselTimer = setInterval(() => {
-                currentAdIndex = (currentAdIndex + 1) % sponsoredAdsList.length;
-                updateAdDisplay();
+                if (sponsoredAdsList.length > 0) {
+                    currentAdIndex = (currentAdIndex + 1) % sponsoredAdsList.length;
+                    updateAdDisplay();
+                }
             }, 5000);
         }
         function nextCarouselAdManual() {
+            if (sponsoredAdsList.length === 0) return;
             currentAdIndex = (currentAdIndex + 1) % sponsoredAdsList.length;
             updateAdDisplay();
             clearInterval(adCarouselTimer);
@@ -1909,14 +2051,19 @@
             }, 5000);
         }
         function updateAdDisplay() {
+            if (!sponsoredAdsList || sponsoredAdsList.length === 0) return;
             const ad = sponsoredAdsList[currentAdIndex];
             const box = document.getElementById('carouselAdBox');
             box.style.backgroundImage = `url('${ad.bg}')`;
             document.getElementById('carouselAdTitle').textContent = ad.title;
             document.getElementById('carouselAdSubtitle').textContent = ad.subtitle;
             document.getElementById('adTimerBadge').textContent = `Ad ${currentAdIndex + 1} of ${sponsoredAdsList.length} (Auto 5s)`;
-            const dots = document.querySelectorAll('#carouselProgressDots .ad-prog-dot');
-            dots.forEach((dot, idx) => { dot.classList.toggle('active', idx === currentAdIndex); });
+            
+            // Build progress dots dynamically based on total ads
+            const dotsContainer = document.getElementById('carouselProgressDots');
+            dotsContainer.innerHTML = sponsoredAdsList.map((_, idx) => `
+                <div class="ad-prog-dot ${idx === currentAdIndex ? 'active' : ''}"></div>
+            `).join('');
         }
 
         function toggleInlineComments(postId) {
@@ -2019,3 +2166,4 @@
     </script>
 </body>
 </html>
+
