@@ -148,7 +148,7 @@
             white-space: nowrap;
         }
 
-        /* Partition Switch Bar */
+        /* 3-Partition Switch Bar */
         .partition-switch-bar {
             display: flex;
             background: var(--bg-card);
@@ -159,8 +159,8 @@
         }
         .partition-tab-btn {
             flex: 1;
-            padding: 11px;
-            font-size: 13.5px;
+            padding: 11px 4px;
+            font-size: 13px;
             font-weight: 800;
             text-align: center;
             color: var(--text-muted);
@@ -175,8 +175,8 @@
             content: '';
             position: absolute;
             bottom: 0;
-            left: 20%;
-            right: 20%;
+            left: 15%;
+            right: 15%;
             height: 3px;
             background: var(--primary-accent);
             border-radius: 3px;
@@ -347,6 +347,14 @@
             border: 1px solid var(--border-subtle);
         }
 
+        /* Bazaar Specfic Cards */
+        .bazaar-price-tag {
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--blue);
+            padding: 0 16px 4px 16px;
+        }
+
         /* Compact Contacts & Actions Dock */
         .post-actions-hub {
             display: flex;
@@ -373,6 +381,7 @@
         .icon-circle-btn:active { transform: scale(0.92); }
         .btn-call { background: #EFF6FF; border-color: #DBEAFE; color: var(--blue); }
         .btn-wa { background: #ECFDF5; border-color: #D1FAE5; color: #059669; }
+        .btn-chat-direct { background: #F3E8FF; border-color: #E9D5FF; color: #7E22CE; }
         .btn-map { background: var(--badge-bg); border-color: var(--border-subtle); color: var(--text-main); }
 
         .profile-link-btn {
@@ -501,6 +510,54 @@
             margin-top: 8px;
         }
 
+        /* CHAT MODAL STYLING */
+        .chat-sheet-view {
+            display: flex;
+            flex-direction: column;
+            height: 80vh;
+            padding: 16px;
+        }
+        .chat-sheet-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .chat-messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .bubble-msg {
+            max-width: 80%;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 12.5px;
+            line-height: 1.35;
+        }
+        .bubble-msg.sent {
+            align-self: flex-end;
+            background: var(--blue);
+            color: #fff;
+            border-bottom-right-radius: 2px;
+        }
+        .bubble-msg.received {
+            align-self: flex-start;
+            background: var(--badge-bg);
+            color: var(--text-main);
+            border-bottom-left-radius: 2px;
+        }
+        .chat-sheet-input-row {
+            display: flex;
+            gap: 8px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-subtle);
+        }
+
         .profile-full-overlay {
             position: fixed; inset: 0; background: var(--bg-card);
             z-index: 260; display: none; flex-direction: column; overflow-y: auto;
@@ -596,10 +653,11 @@
             </div>
         </header>
 
-        <!-- 2-Partition Switch: Shops vs Services -->
+        <!-- 3-Partition Switch: Shops vs Services vs Bazaar (Buy/Sell) -->
         <div class="partition-switch-bar">
             <button class="partition-tab-btn active" id="tabShopsBtn" onclick="switchMarketPartition('shops')">Shops</button>
             <button class="partition-tab-btn" id="tabServicesBtn" onclick="switchMarketPartition('services')">Services</button>
+            <button class="partition-tab-btn" id="tabBazaarBtn" onclick="switchMarketPartition('bazaar')">🛒 Bazaar (Sell)</button>
         </div>
 
         <!-- Sub Filter (Retail vs Wholesale) - Active under Shops -->
@@ -621,8 +679,8 @@
         <!-- Feeds Container -->
         <div class="feed-container" id="feedContainerDock"></div>
 
-        <!-- Floating Create Business Button -->
-        <button type="button" class="floating-create-action-btn" onclick="openSmartBusinessModal()">
+        <!-- Floating Action Button -->
+        <button type="button" class="floating-create-action-btn" onclick="handleFabClick()">
             <span>➕</span> <span id="fabLabel">Create Shop</span>
         </button>
 
@@ -674,6 +732,7 @@
 
         <div class="drawer-list">
             <div class="drawer-link" onclick="closeClusterDrawer(); openSmartBusinessModal()">Create Shop / Service</div>
+            <div class="drawer-link" onclick="closeClusterDrawer(); switchMarketPartition('bazaar'); openSellItemModal()">+ Sell Old/New Item</div>
             <div class="drawer-link" onclick="window.location.href='area.html'">Area Channel</div>
             <div class="drawer-link" onclick="toggleThemeInline()">
                 <span>Theme Mode</span>
@@ -695,7 +754,7 @@
         </div>
     </div>
 
-    <!-- BUSINESS REGISTRATION MODAL -->
+    <!-- BUSINESS REGISTRATION MODAL (Shops & Services) -->
     <div class="modal-overlay" id="businessRegistrationModal">
         <div class="modal-sheet">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
@@ -721,16 +780,72 @@
             <div class="photo-upload-box" onclick="document.getElementById('fileUploadInput').click()">
                 <div style="font-size:20px;">📷</div>
                 <div style="font-size:11px; font-weight:700; color:var(--blue); margin-top:2px;">Tap to Take Photo or Upload</div>
-                <input type="file" id="fileUploadInput" accept="image/*" style="display:none;" onchange="handleImageSelection(this)">
+                <input type="file" id="fileUploadInput" accept="image/*" style="display:none;" onchange="handleImageSelection(this, 'uploadImagePreview')">
                 <img id="uploadImagePreview" class="photo-preview">
             </div>
 
-            <button type="button" class="tap-location-btn" onclick="captureLiveLocation()">
+            <button type="button" class="tap-location-btn" onclick="captureLiveLocation('tapLocationStatusText', 'capturedCoords')">
                 <span>📍</span> <span id="tapLocationStatusText">Tap to Tag GPS Location</span>
             </button>
             <input type="hidden" id="capturedCoords" value="">
 
             <button type="button" class="modal-btn" onclick="submitBusinessRegistration()">Publish to Market 🚀</button>
+        </div>
+    </div>
+
+    <!-- UNIVERSAL SELL MODAL (Bazaar / Classifieds) -->
+    <div class="modal-overlay" id="sellItemModal">
+        <div class="modal-sheet">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <div class="sheet-title" style="margin-bottom:0;">बेचना है (Post to Sell)</div>
+                <button onclick="closeModal('sellItemModal')" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
+            </div>
+
+            <label style="font-size:11px; font-weight:700; color:var(--text-muted); margin-bottom:4px; display:block;">कैटेगरी चुनें (Category):</label>
+            <select id="bazaarCategorySelect" class="modal-input"></select>
+
+            <input type="text" id="bazaarTitle" class="modal-input" placeholder="सामान का नाम (उदा. Hero Splendor 2021 या iPhone 12)">
+            <input type="number" id="bazaarPrice" class="modal-input" placeholder="कीमत (₹ Price)">
+            <input type="text" id="bazaarArea" class="modal-input" placeholder="मोहल्ला / एरिया">
+            <input type="number" id="bazaarPin" class="modal-input" placeholder="6-digit Pincode" value="209868">
+            <input type="tel" id="bazaarPhone" class="modal-input" placeholder="संपर्क नंबर (Mobile Number)">
+
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:4px 0 10px 0;">
+                <span style="font-size:12px; font-weight:600; color:var(--text-muted);">सीधे कॉल की अनुमति दें</span>
+                <input type="checkbox" id="bazaarAllowCall" checked style="width:18px; height:18px;">
+            </div>
+
+            <label style="font-size:11px; font-weight:700; color:var(--text-muted); margin-bottom:4px; display:block;">सामान की फोटो:</label>
+            <div class="photo-upload-box" onclick="document.getElementById('bazaarPhotoInput').click()">
+                <div style="font-size:20px;">📸</div>
+                <div style="font-size:11px; font-weight:700; color:var(--blue); margin-top:2px;">फोटो अपलोड करें (Compresses Auto)</div>
+                <input type="file" id="bazaarPhotoInput" accept="image/*" style="display:none;" onchange="handleImageSelection(this, 'bazaarPhotoPreview')">
+                <img id="bazaarPhotoPreview" class="photo-preview">
+            </div>
+
+            <textarea id="bazaarBio" class="modal-input" style="min-height:55px; resize:none;" placeholder="सामान की कंडीशन, बिल/बॉक्स या कोई अन्य विवरण..."></textarea>
+
+            <button type="button" class="modal-btn" id="bazaarSubmitBtn" onclick="submitBazaarItem()">तुरंत लिस्ट करें 🚀</button>
+        </div>
+    </div>
+
+    <!-- IN-APP REALTIME CHAT MODAL -->
+    <div class="modal-overlay" id="realtimeChatModal">
+        <div class="modal-sheet chat-sheet-view">
+            <div class="chat-sheet-header">
+                <div>
+                    <h4 style="font-size:14px; font-weight:800;" id="activeChatTitle">चैट</h4>
+                    <span style="font-size:11.5px; color:var(--blue); font-weight:700;" id="activeChatPrice"></span>
+                </div>
+                <button onclick="closeChatModal()" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
+            </div>
+
+            <div class="chat-messages-container" id="chatMessagesDock"></div>
+
+            <div class="chat-sheet-input-row">
+                <input type="text" id="chatMessageInput" class="modal-input" style="margin-bottom:0; flex:1;" placeholder="मैसेज लिखें...">
+                <button class="modal-btn" style="width:auto; margin-top:0; padding:10px 18px;" onclick="sendChatMessage()">भेजें</button>
+            </div>
         </div>
     </div>
 
@@ -755,11 +870,11 @@
             <p style="font-size:12px; color:var(--text-muted); margin-top:6px;" id="viewerAddress">Address</p>
             
             <div style="background:var(--badge-bg); border:1px solid var(--border-subtle); border-radius:12px; padding:10px 12px; margin:12px 0;">
-                <div style="font-size:11.5px; font-weight:800; color:var(--red);">🔥 Highlighted Offer & Description:</div>
-                <div style="font-size:12px; margin-top:4px;" id="viewerBioText">Top quality genuine local service. Contact directly!</div>
+                <div style="font-size:11.5px; font-weight:800; color:var(--red);">🔥 Description / Details:</div>
+                <div style="font-size:12px; margin-top:4px;" id="viewerBioText">Top quality genuine local listing. Contact directly!</div>
             </div>
 
-            <div style="display:flex; gap:8px; margin-bottom:14px;">
+            <div style="display:flex; gap:8px; margin-bottom:14px;" id="viewerActionGroup">
                 <a href="tel:" id="viewerCallLink" class="icon-circle-btn btn-call" style="flex:1; border-radius:12px; height:42px; font-size:13px; font-weight:800;">📞 Call Direct</a>
                 <a href="https://wa.me/" id="viewerWaLink" class="icon-circle-btn btn-wa" style="flex:1; border-radius:12px; height:42px; font-size:13px; font-weight:800;">🟢 WhatsApp</a>
             </div>
@@ -777,7 +892,29 @@
         </div>
     </div>
 
+    <!-- FIREBASE COMPAT SCRIPTS -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
     <script>
+        // FIREBASE SETUP
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        let db = null;
+        try {
+            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+        } catch(e) {
+            console.log("Firebase not configured yet; will use local sync.");
+        }
+
         const SHOP_CATEGORIES = [
             { id: "grocery", label: "Kirana Store", avatar: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=100", bg: "#FEF3C7", text: "#92400E" },
             { id: "clothing", label: "Cloth & Saree", avatar: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=100", bg: "#FCE7F3", text: "#9D174D" },
@@ -801,6 +938,15 @@
             { id: "mechanic", label: "Auto Mechanic", avatar: "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=100", bg: "#E2E8F0", text: "#1E293B" },
             { id: "ca", label: "CA & Tax Advisor", avatar: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=100", bg: "#EDE9FE", text: "#6D28D9" },
             { id: "salon", label: "Salon & Beauty", avatar: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=100", bg: "#FCE7F3", text: "#BE185D" }
+        ];
+
+        const BAZAAR_CATEGORIES = [
+            { id: "b_mobiles", label: "Mobiles & Gadgets", avatar: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100", bg: "#E0E7FF", text: "#3730A3" },
+            { id: "b_vehicles", label: "Bikes & Cars", avatar: "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=100", bg: "#FFEDD5", text: "#9A3412" },
+            { id: "b_property", label: "Plots & Rent", avatar: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=100", bg: "#DCFCE7", text: "#166534" },
+            { id: "b_furniture", label: "Furniture & Home", avatar: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=100", bg: "#FEF3C7", text: "#92400E" },
+            { id: "b_electronics", label: "TV, Fridge, AC", avatar: "https://images.unsplash.com/photo-1571171637578-41bc2dd41cd2?w=100", bg: "#EDE9FE", text: "#6D28D9" },
+            { id: "b_others", label: "Other Items", avatar: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=100", bg: "#F1F5F9", text: "#0F172A" }
         ];
 
         const DEFAULT_CHANNELS = [
@@ -829,9 +975,15 @@
         let currentViewingProfile = null;
         let selectedImageDataUrl = "";
 
+        // Current Local User Profile
+        const myAppUserId = "user_" + (localStorage.getItem('post_cached_my_uid') || "aarav_101");
+        let activeChatSession = null;
+        let activeChatListenerUnsub = null;
+
         let listings = JSON.parse(localStorage.getItem('post_market_listings')) || [
             {
                 id: "m_1",
+                userId: "user_radhe_1",
                 partition: "shops",
                 subType: "retail",
                 categoryId: "clothing",
@@ -854,6 +1006,7 @@
             },
             {
                 id: "m_2",
+                userId: "user_balaji_2",
                 partition: "shops",
                 subType: "wholesale",
                 categoryId: "grocery",
@@ -876,6 +1029,7 @@
             },
             {
                 id: "m_3",
+                userId: "user_vikram_3",
                 partition: "services",
                 subType: "none",
                 categoryId: "jobs",
@@ -895,6 +1049,31 @@
                 likes: 45,
                 liked: false,
                 commentsCount: 12
+            },
+            {
+                id: "b_1",
+                userId: "user_mohan_5",
+                partition: "bazaar",
+                subType: "none",
+                categoryId: "b_vehicles",
+                categoryLabel: "Bikes & Cars",
+                title: "Hero Splendor Plus i3S 2021",
+                price: "42000",
+                owner: "Mohan Lal",
+                phone: "9876549988",
+                allowCall: true,
+                area: "Gonda Tola",
+                pin: "209868",
+                town: "Bangarmau",
+                coords: "",
+                uid: "2098685544",
+                bio: "First owner bike, genuine 18,000 km run, both brand new tyres, valid insurance.",
+                media: "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=800",
+                dp: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100",
+                specs: ["Single Owner", "Condition A1", "Negotiable"],
+                likes: 19,
+                liked: false,
+                commentsCount: 2
             }
         ];
 
@@ -927,12 +1106,32 @@
 
             document.getElementById('tabShopsBtn').classList.toggle('active', type === 'shops');
             document.getElementById('tabServicesBtn').classList.toggle('active', type === 'services');
+            document.getElementById('tabBazaarBtn').classList.toggle('active', type === 'bazaar');
+
             document.getElementById('shopTypeFilterStrip').style.display = (type === 'shops') ? 'flex' : 'none';
-            document.getElementById('trayTitleLabel').textContent = (type === 'shops') ? 'Shops Categories' : 'Services Categories';
-            document.getElementById('fabLabel').textContent = (type === 'shops') ? 'Create Shop' : 'Register Service';
+
+            let titleTxt = 'Shops Categories';
+            let fabTxt = 'Create Shop';
+            if (type === 'services') {
+                titleTxt = 'Services Categories';
+                fabTxt = 'Register Service';
+            } else if (type === 'bazaar') {
+                titleTxt = 'Bazaar Categories';
+                fabTxt = 'Sell Item 🛍️';
+            }
+            document.getElementById('trayTitleLabel').textContent = titleTxt;
+            document.getElementById('fabLabel').textContent = fabTxt;
 
             renderCategoryTray();
             renderFeedListings();
+        }
+
+        function handleFabClick() {
+            if (currentPartition === 'bazaar') {
+                openSellItemModal();
+            } else {
+                openSmartBusinessModal();
+            }
         }
 
         function filterShopSubtype(chip, subtype) {
@@ -942,9 +1141,15 @@
             renderFeedListings();
         }
 
+        function getActiveCategoryList() {
+            if (currentPartition === 'shops') return SHOP_CATEGORIES;
+            if (currentPartition === 'services') return SERVICE_CATEGORIES;
+            return BAZAAR_CATEGORIES;
+        }
+
         function renderCategoryTray() {
             const dock = document.getElementById('categoryTrayDock');
-            const catList = (currentPartition === 'shops') ? SHOP_CATEGORIES : SERVICE_CATEGORIES;
+            const catList = getActiveCategoryList();
 
             dock.innerHTML = catList.map(cat => `
                 <div class="cat-item-card ${activeCategoryFilter === cat.id ? 'selected' : ''}" 
@@ -964,8 +1169,8 @@
         }
 
         function openShowAllModal() {
-            const catList = (currentPartition === 'shops') ? SHOP_CATEGORIES : SERVICE_CATEGORIES;
-            document.getElementById('showAllTitle').textContent = (currentPartition === 'shops') ? 'All Shop Categories' : 'All Service Categories';
+            const catList = getActiveCategoryList();
+            document.getElementById('showAllTitle').textContent = `All ${currentPartition.toUpperCase()} Categories`;
             
             const grid = document.getElementById('allCatsGridDock');
             grid.innerHTML = catList.map(cat => `
@@ -1000,7 +1205,7 @@
                                     item.categoryLabel.toLowerCase().includes(q) ||
                                     item.area.toLowerCase().includes(q) ||
                                     item.uid.includes(q) ||
-                                    item.bio.toLowerCase().includes(q);
+                                    (item.bio && item.bio.toLowerCase().includes(q));
                 }
                 return matchesPartition && matchesPin && matchesCat && matchesSubtype && matchesSearch;
             });
@@ -1010,8 +1215,10 @@
                     <div style="text-align:center; padding:36px 16px; background:var(--bg-card); border-radius:16px; margin:0 16px; border:1px solid var(--border-subtle);">
                         <div style="font-size:28px; margin-bottom:8px;">📍</div>
                         <div style="font-size:14px; font-weight:800;">No Listings in ${activeTown} (${activePin})</div>
-                        <div style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">Be the first to register a business here!</div>
-                        <button type="button" class="modal-btn" style="margin-top:12px; width:auto; padding:8px 18px;" onclick="openSmartBusinessModal()">Create Business</button>
+                        <div style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">Be the first to post here!</div>
+                        <button type="button" class="modal-btn" style="margin-top:12px; width:auto; padding:8px 18px;" onclick="handleFabClick()">
+                            ${currentPartition === 'bazaar' ? 'बेचना शुरू करें' : 'Create Listing'}
+                        </button>
                     </div>
                 `;
                 return;
@@ -1035,7 +1242,9 @@
                         <span class="uid-badge-pill" onclick="copyUID('${item.uid}')">📋 ${item.uid}</span>
                     </div>
 
-                    <div class="post-content-pad">${item.bio}</div>
+                    ${item.price ? `<div class="bazaar-price-tag">₹${Number(item.price).toLocaleString('en-IN')}</div>` : ''}
+
+                    <div class="post-content-pad">${item.bio || ''}</div>
 
                     <div class="post-specs-strip">
                         ${(item.specs || []).map(s => `<span class="post-chip">✓ ${s}</span>`).join('')}
@@ -1049,11 +1258,21 @@
 
                     <div class="post-actions-hub">
                         <div class="contact-btn-group">
-                            <a href="tel:${item.phone}" class="icon-circle-btn btn-call" title="Call">📞</a>
-                            <a href="https://wa.me/91${item.phone}?text=Hello%20${encodeURIComponent(item.title)},%20I%20found%20you%20on%20POST." class="icon-circle-btn btn-wa" title="WhatsApp">🟢</a>
+                            <!-- Direct Chat Button for all posts -->
+                            <button type="button" class="icon-circle-btn btn-chat-direct" onclick="triggerDirectChat('${item.id}')" title="Chat In-App">💬</button>
+
+                            <!-- Direct Call Button (if allowed) -->
+                            ${(item.allowCall !== false && item.phone) ? `
+                                <a href="tel:${item.phone}" class="icon-circle-btn btn-call" title="Call">📞</a>
+                            ` : ''}
+
+                            ${item.phone ? `
+                                <a href="https://wa.me/91${item.phone}?text=Hello\%20${encodeURIComponent(item.title)},%20I%20saw%20your%20listing%20on%20POST." class="icon-circle-btn btn-wa" title="WhatsApp">🟢</a>
+                            ` : ''}
+
                             ${item.coords ? `<a href="https://www.google.com/maps/search/?api=1&query=${item.coords}" target="_blank" class="icon-circle-btn btn-map" title="Map Directions">📍</a>` : ''}
                         </div>
-                        <button type="button" class="profile-link-btn" onclick="openProfileByUid('${item.uid}')">View Profile &rarr;</button>
+                        <button type="button" class="profile-link-btn" onclick="openProfileByUid('${item.uid}')">View Details &rarr;</button>
                     </div>
 
                     <div class="post-social-bar">
@@ -1064,7 +1283,7 @@
                                 </svg>
                                 <span>${item.likes || 0}</span>
                             </button>
-                            <button type="button" class="social-action-btn" onclick="alert('Reviews and Comments')">
+                            <button type="button" class="social-action-btn" onclick="alert('Comments')">
                                 <span style="font-weight:800; font-size:11.5px; color:var(--text-muted);">COMMENT</span>
                                 <span style="font-size:11px; color:var(--text-muted);">(${item.commentsCount || 0})</span>
                             </button>
@@ -1098,6 +1317,217 @@
             }
         }
 
+        /* CLIENT-SIDE SMART IMAGE COMPRESSION */
+        function handleImageSelection(input, previewElementId) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = function() {
+                        const canvas = document.createElement("canvas");
+                        const MAX_WIDTH = 700;
+                        const scale = MAX_WIDTH / img.width;
+                        canvas.width = (img.width > MAX_WIDTH) ? MAX_WIDTH : img.width;
+                        canvas.height = (img.width > MAX_WIDTH) ? (img.height * scale) : img.height;
+
+                        const ctx = canvas.getContext("2d");
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        selectedImageDataUrl = canvas.toDataURL("image/jpeg", 0.72);
+
+                        const preview = document.getElementById(previewElementId);
+                        preview.src = selectedImageDataUrl;
+                        preview.style.display = 'block';
+                        showAppToast("Photo compressed & ready! 📸");
+                    };
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function captureLiveLocation(labelId, hiddenInputId) {
+            const status = document.getElementById(labelId);
+            if (!navigator.geolocation) return showAppToast("GPS not supported");
+            status.textContent = "Detecting GPS...";
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const lat = pos.coords.latitude.toFixed(4);
+                    const lng = pos.coords.longitude.toFixed(4);
+                    document.getElementById(hiddenInputId).value = `${lat},${lng}`;
+                    status.textContent = `📍 Tagged (${lat}, ${lng}) ✓`;
+                    showAppToast("Location captured successfully! ✨");
+                },
+                () => {
+                    status.textContent = "Location access denied.";
+                    showAppToast("Please enter area manually");
+                },
+                { enableHighAccuracy: true, timeout: 8000 }
+            );
+        }
+
+        /* BAZAAR SELL POST SUBMIT */
+        function openSellItemModal() {
+            const select = document.getElementById('bazaarCategorySelect');
+            select.innerHTML = BAZAAR_CATEGORIES.map(c => `<option value="${c.id}">${c.label}</option>`).join('');
+            selectedImageDataUrl = "";
+            document.getElementById('bazaarPhotoPreview').style.display = 'none';
+            document.getElementById('bazaarPin').value = activePin;
+            openModal('sellItemModal');
+        }
+
+        async function submitBazaarItem() {
+            const catId = document.getElementById('bazaarCategorySelect').value;
+            const title = document.getElementById('bazaarTitle').value.trim();
+            const price = document.getElementById('bazaarPrice').value.trim();
+            const area = document.getElementById('bazaarArea').value.trim();
+            const pin = document.getElementById('bazaarPin').value.trim();
+            const phone = document.getElementById('bazaarPhone').value.trim();
+            const allowCall = document.getElementById('bazaarAllowCall').checked;
+            const bio = document.getElementById('bazaarBio').value.trim();
+
+            if (!title || !price || !area) return showAppToast("Title, Price & Area are required!");
+            if (!pin || pin.length !== 6) return showAppToast("Valid 6-digit Pincode required!");
+
+            const catObj = BAZAAR_CATEGORIES.find(c => c.id === catId);
+            const newUid = `${pin}${Math.floor(1000 + Math.random() * 9000)}`;
+
+            const newItem = {
+                id: 'b_' + Date.now().toString(),
+                userId: myAppUserId,
+                partition: 'bazaar',
+                subType: 'none',
+                categoryId: catId,
+                categoryLabel: catObj ? catObj.label : 'Item',
+                title: title,
+                price: price,
+                owner: "Self User",
+                phone: phone,
+                allowCall: allowCall,
+                area: area,
+                pin: pin,
+                town: activeTown,
+                coords: "",
+                uid: newUid,
+                bio: bio,
+                media: selectedImageDataUrl || (catObj ? catObj.avatar : ''),
+                dp: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100',
+                specs: ["Verified Listing", "Contact for Deal"],
+                likes: 0,
+                liked: false,
+                commentsCount: 0
+            };
+
+            listings.unshift(newItem);
+            localStorage.setItem('post_market_listings', JSON.stringify(listings));
+
+            // Sync to Firestore if online
+            if (db) {
+                try {
+                    await db.collection("market_posts").doc(newItem.id).set(newItem);
+                } catch(e) { console.log(e); }
+            }
+
+            renderFeedListings();
+            closeModal('sellItemModal');
+            showAppToast(`Item listed in Bazaar! UID: ${newUid} 🚀`);
+        }
+
+        /* IN-APP REALTIME CHAT SYSTEM */
+        function triggerDirectChat(itemId) {
+            const item = listings.find(x => x.id === itemId);
+            if (!item) return;
+
+            if (item.userId === myAppUserId) {
+                showAppToast("यह आपकी ही पोस्ट है!");
+                return;
+            }
+
+            activeChatSession = {
+                chatId: `${myAppUserId}_${item.userId || 'seller'}_${item.id}`,
+                item: item
+            };
+
+            document.getElementById('activeChatTitle').textContent = item.title;
+            document.getElementById('activeChatPrice').textContent = item.price ? `₹${Number(item.price).toLocaleString('en-IN')}` : item.categoryLabel;
+            openModal('realtimeChatModal');
+
+            listenToRealtimeMessages(activeChatSession.chatId);
+        }
+
+        function listenToRealtimeMessages(chatId) {
+            const dock = document.getElementById('chatMessagesDock');
+            dock.innerHTML = "";
+
+            if (activeChatListenerUnsub) activeChatListenerUnsub();
+
+            if (db) {
+                activeChatListenerUnsub = db.collection("chats")
+                    .doc(chatId)
+                    .collection("messages")
+                    .orderBy("timestamp", "asc")
+                    .onSnapshot((snapshot) => {
+                        dock.innerHTML = "";
+                        snapshot.forEach((doc) => {
+                            const data = doc.data();
+                            const isMe = (data.senderId === myAppUserId);
+                            const bubble = document.createElement("div");
+                            bubble.className = `bubble-msg ${isMe ? 'sent' : 'received'}`;
+                            bubble.textContent = data.text;
+                            dock.appendChild(bubble);
+                        });
+                        dock.scrollTop = dock.scrollHeight;
+                    });
+            } else {
+                // Local Fallback Simulation
+                const localKey = 'chat_cache_' + chatId;
+                const cached = JSON.parse(localStorage.getItem(localKey)) || [
+                    { senderId: 'seller', text: 'नमस्ते! क्या आप इसे देखना चाहते हैं?' }
+                ];
+                dock.innerHTML = cached.map(m => `
+                    <div class="bubble-msg ${m.senderId === myAppUserId ? 'sent' : 'received'}">${m.text}</div>
+                `).join('');
+                dock.scrollTop = dock.scrollHeight;
+            }
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('chatMessageInput');
+            const txt = input.value.trim();
+            if (!txt || !activeChatSession) return;
+            input.value = "";
+
+            const payload = {
+                senderId: myAppUserId,
+                text: txt,
+                timestamp: (window.firebase && firebase.firestore) ? firebase.firestore.FieldValue.serverTimestamp() : new Date().toISOString()
+            };
+
+            if (db) {
+                const cRef = db.collection("chats").doc(activeChatSession.chatId);
+                await cRef.set({
+                    postId: activeChatSession.item.id,
+                    postTitle: activeChatSession.item.title,
+                    lastMessage: txt,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+
+                await cRef.collection("messages").add(payload);
+            } else {
+                const localKey = 'chat_cache_' + activeChatSession.chatId;
+                const list = JSON.parse(localStorage.getItem(localKey)) || [];
+                list.push({ senderId: myAppUserId, text: txt });
+                localStorage.setItem(localKey, JSON.stringify(list));
+                listenToRealtimeMessages(activeChatSession.chatId);
+            }
+        }
+
+        function closeChatModal() {
+            if (activeChatListenerUnsub) activeChatListenerUnsub();
+            closeModal('realtimeChatModal');
+        }
+
+        /* BUSINESS REGISTRATION */
         function openSmartBusinessModal() {
             const select = document.getElementById('formCategorySelect');
             const list = (currentPartition === 'shops') ? SHOP_CATEGORIES : SERVICE_CATEGORIES;
@@ -1169,40 +1599,6 @@
             `;
         }
 
-        function handleImageSelection(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    selectedImageDataUrl = e.target.result;
-                    const preview = document.getElementById('uploadImagePreview');
-                    preview.src = selectedImageDataUrl;
-                    preview.style.display = 'block';
-                    showAppToast("Photo loaded successfully! 📸");
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        function captureLiveLocation() {
-            const status = document.getElementById('tapLocationStatusText');
-            if (!navigator.geolocation) return showAppToast("GPS not supported");
-            status.textContent = "Detecting GPS...";
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    const lat = pos.coords.latitude.toFixed(4);
-                    const lng = pos.coords.longitude.toFixed(4);
-                    document.getElementById('capturedCoords').value = `${lat},${lng}`;
-                    status.textContent = `📍 Tagged (${lat}, ${lng}) ✓`;
-                    showAppToast("Location captured successfully! ✨");
-                },
-                () => {
-                    status.textContent = "Location access denied.";
-                    showAppToast("Please enter area manually");
-                },
-                { enableHighAccuracy: true, timeout: 8000 }
-            );
-        }
-
         function submitBusinessRegistration() {
             const catId = document.getElementById('formCategorySelect').value;
             const title = document.getElementById('formBusinessTitle').value.trim();
@@ -1228,6 +1624,7 @@
 
             const newListing = {
                 id: 'm_' + Date.now().toString(),
+                userId: myAppUserId,
                 partition: currentPartition,
                 subType: shopSubtype,
                 categoryId: catId,
@@ -1235,6 +1632,7 @@
                 title: title,
                 owner: owner,
                 phone: phone,
+                allowCall: true,
                 area: area,
                 pin: pin,
                 town: activeTown,
@@ -1257,6 +1655,7 @@
             showAppToast(`Registered successfully! UID: ${newUid} 🚀`);
         }
 
+        /* PROFILE VIEW & ROUTING */
         function openProfileByUid(uid) {
             const item = listings.find(x => x.uid === uid);
             if (item) openProfileView(item);
@@ -1266,14 +1665,21 @@
             currentViewingProfile = item;
             document.getElementById('viewerProfileTitle').textContent = `${item.title}'s Profile`;
             document.getElementById('viewerName').textContent = item.title;
-            document.getElementById('viewerBadge').textContent = `Verified: ${item.categoryLabel}`;
+            document.getElementById('viewerBadge').textContent = item.price ? `₹${Number(item.price).toLocaleString('en-IN')} • ${item.categoryLabel}` : `Verified: ${item.categoryLabel}`;
             document.getElementById('viewerAddress').textContent = `📍 ${item.area}, ${item.town} • PIN: ${item.pin}`;
             document.getElementById('viewerUidPill').textContent = `📋 ${item.uid}`;
-            document.getElementById('viewerBioText').textContent = item.bio;
+            document.getElementById('viewerBioText').textContent = item.bio || 'Genuine listing on POST.';
             document.getElementById('viewerDpImg').src = item.dp || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120';
 
-            document.getElementById('viewerCallLink').href = `tel:${item.phone}`;
-            document.getElementById('viewerWaLink').href = `https://wa.me/91${item.phone}`;
+            const callLink = document.getElementById('viewerCallLink');
+            if (item.allowCall !== false && item.phone) {
+                callLink.style.display = 'flex';
+                callLink.href = `tel:${item.phone}`;
+            } else {
+                callLink.style.display = 'none';
+            }
+
+            document.getElementById('viewerWaLink').href = item.phone ? `https://wa.me/91${item.phone}` : '#';
             document.getElementById('profileViewerModal').style.display = 'flex';
         }
 
